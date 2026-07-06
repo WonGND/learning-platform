@@ -1,43 +1,119 @@
-# RETRO LEARNING PLATFORM (QUANT QUEST)
+# RETRO LEARNING PLATFORM
 
-레트로 게임 감성의 게이미피케이션 학습 플랫폼 템플릿.
-**주제 종속 데이터는 전부 `src/config/content.ts` 한 파일에 있다** — 이 파일만 교체하면
-영어 강의, AI 가이드, 재테크 등 어떤 주제로든 서비스가 재구성된다.
+레트로 게임(CRT/터미널) 감성의 **게이미피케이션 학습 플랫폼 템플릿**.
+BIOS 부팅 연출 → 진단 퀴즈로 클래스 판정 → 월드맵 탐험 → 챕터 학습 → 업적 수집 →
+멤버십 게이트 → 유료 전환 퍼널까지, 인터랙티브 전자책/강의 서비스의 전체 흐름을 담고 있다.
 
-현재 더미 주제: **퀀트 퀘스트** (자동매매/퀀트 투자 입문)
+핵심 설계: **콘텐츠와 코드의 완전 분리.** 주제 종속 데이터는 전부
+`src/config/content.ts` 한 파일에 있으며, 이 파일만 교체하면 영어 강의·AI 가이드·재테크 등
+어떤 주제로든 서비스 전체가 재구성된다. 현재 예시 주제: **퀀트 퀘스트** (자동매매/퀀트 투자 입문).
 
 ## 실행 방법
 
 ```bash
-cd learning-platform
 npm install
 npm run dev      # 개발 서버 (http://localhost:5173)
-npm run build    # 프로덕션 빌드 (dist/)
+npm run build    # 프로덕션 빌드 → dist/
 npm run preview  # 빌드 결과 미리보기
 ```
+
+빌드 결과(`dist/`)는 정적 파일이므로 Vercel / Netlify / GitHub Pages / Cloudflare Pages
+어디에나 그대로 올리면 된다 (`vite.config.ts`의 `base: './'` 덕분에 하위 경로 배포도 동작).
 
 ## 폴더 구조
 
 ```
 src/
   config/
-    content.ts    ← ★ 주제 교체는 이 파일만 수정
-    index.ts      ← 기본값 병합 (필드 누락 시 안전 폴백)
-  types/config.ts ← AppConfig 스키마 정의
-  screens/        ← 화면 단위 (Boot / Title / Main ...)
-  components/     ← 공용 컴포넌트 (MuteToggle ...)
-  hooks/          ← usePrefersReducedMotion 등
-  lib/            ← storage(네임스페이스드 localStorage), sound(Web Audio 효과음)
-  styles/         ← CRT/픽셀 디자인 시스템 CSS
+    content.ts      ★ 주제 교체는 이 파일만 수정
+    index.ts        기본값 병합 + 게이트/챕터 순서 헬퍼
+  types/config.ts   AppConfig 스키마 (모든 필드의 타입 정의)
+  screens/          Boot / Title / WorldMap / Chapter / Quiz / Achievements / Gate
+  components/       Hud, Markdown, MuteToggle, EncounterModal, FunnelSection
+  state/            ProgressContext(진행률·플레이타임·멤버십), AchievementContext(업적·토스트)
+  hooks/            usePrefersReducedMotion
+  lib/              storage(네임스페이스드 localStorage), sound(Web Audio 효과음)
+  styles/           CRT/픽셀 디자인 시스템 CSS
 ```
 
-## 마일스톤 진행 상황
+## 주제 교체 가이드 (content.ts)
+
+`src/config/content.ts`의 각 필드를 새 주제로 채우면 끝이다. 필드를 비우거나 빠뜨려도
+앱은 죽지 않고 해당 섹션을 숨기거나 기본값으로 대체한다.
+
+| 필드 | 하는 일 | 비우면 |
+|------|---------|--------|
+| `brand` | 서비스명·부제·ASCII 로고 (타이틀 화면) | 기본 브랜드 문구 |
+| `boot` | 부팅 시퀀스 텍스트와 총 연출 시간(ms) | 기본 2줄 부팅 |
+| `modes` | 월드맵의 스테이지. 각각 챕터 배열을 가짐 | 빈 월드맵 안내 문구 |
+| `quiz` | 진단 퀴즈 문항 (8문항 권장, 선택지마다 score) | CLASS CHECK 버튼 숨김 |
+| `classes` | 퀴즈 총점 구간(min~maxScore)별 판정 클래스와 추천 시작점 | CLASS CHECK 버튼 숨김 |
+| `achievements` | 업적 정의 (조건 타입 5종, 아래 참고) | TROPHY 버튼 숨김 |
+| `encounters` | 랜덤 인카운터 팁/미션 카드 (챕터 진입 시 12% 확률) | 인카운터 미발생 |
+| `principles` | "설계자의 10계명" 류 원칙 목록 (랜딩 퍼널에 표시) | 섹션 숨김 |
+| `cases` | Before/After 성과 사례 표 (랜딩 퍼널에 표시) | 섹션 숨김 |
+| `funnel` | 가치 제안 카드 + 유료 강의 CTA (랜딩 하단·완주 지점) | 섹션 숨김 |
+| `membership` | 입장 코드·채널 링크·잠금 시작 지점 | 잠금 없음 |
+
+### 챕터 작성
+
+```ts
+{
+  id: 'novice-1',            // 전체에서 유일해야 함
+  title: '챕터 제목',
+  summary: '목차에 보이는 한 줄 요약',
+  body: `# 마크다운 본문\n\n표, 인용구, 코드블록, 체크리스트 지원`,
+}
+```
+
+### 업적 조건 타입
+
+```ts
+{ type: 'first_chapter' }                  // 첫 챕터 완료
+{ type: 'quiz_complete' }                  // 진단 퀴즈 완료
+{ type: 'mode_clear', modeId: 'novice' }   // 특정(또는 아무) 모드 클리어
+{ type: 'chapters_completed', count: 5 }   // 챕터 N개 완료
+{ type: 'all_clear' }                      // 전체 완주
+```
+
+### 진단 퀴즈 → 클래스 판정
+
+- 각 선택지의 `score` 합계가 총점이 된다.
+- `classes[].minScore ~ maxScore` 구간으로 판정하므로, **구간이 총점 범위 전체를 덮도록** 작성하라
+  (빈틈이 있어도 최근접 클래스로 폴백되지만, 의도된 판정이 아닐 수 있다).
+- `startModeId` / `startChapterId`는 실제 존재하는 id여야 한다 (없으면 해당 모드 첫 챕터 → 월드맵 순 폴백).
+
+### 멤버십 게이트
+
+```ts
+membership: {
+  validCodes: ['QUANT2026', 'PLAYER-ONE'],  // 대소문자·공백 무시 비교
+  channelUrl: 'https://...',                 // 잠금 화면의 채널 안내 링크
+  gateAfterChapter: 6,                       // 전체 챕터 순서 기준, 7번째부터 잠금
+}
+```
+
+> ⚠ **주의**: 입장 코드는 클라이언트(브라우저)에서 검증되고 소스에 그대로 노출된다.
+> "무료 멤버십 채널 유도" 용도로만 쓰고, **유료 콘텐츠를 이 코드로 보호하지 마라.**
+
+### 저장 데이터
+
+진행률·업적·멤버십·음소거 설정은 `localStorage`에 `retro-learn:` 네임스페이스로 저장된다.
+주제를 교체해 배포할 때 사용자 진행률을 초기화하고 싶으면 `src/lib/storage.ts`의
+네임스페이스 문자열을 바꾸면 된다. 손상된 데이터는 자동으로 초기 상태로 복구된다.
+
+## 마일스톤 (전체 완료)
 
 - [x] **M1**: 프로젝트 셋업 + content.ts 스키마 + 더미 주제 + 부팅 연출
 - [x] **M2**: 학습 월드맵 + 챕터 뷰어 + 진행률 저장
 - [x] **M3**: 진단 퀴즈 → 추천 로직 → 시작점 연결
-- [ ] M4: 게이미피케이션 (업적·능력치·사운드·인카운터)
-- [ ] M5: 멤버십 게이트 (입장 코드 잠금해제)
-- [ ] M6: 마케팅 퍼널 CTA + 사례 섹션 + 반응형 마감 + 배포 빌드
+- [x] **M4**: 게이미피케이션(업적·능력치·사운드·인카운터)
+- [x] **M5**: 멤버십 게이트(입장 코드 잠금해제)
+- [x] **M6**: 마케팅 퍼널 CTA + 사례 섹션 + 반응형 마감 + 배포 빌드
 
-주제 교체 상세 가이드는 M6 완료 시 이 README에 정리된다.
+## 접근성 / 성능
+
+- 모든 인터랙션은 키보드로 조작 가능 (Tab/Enter, 부팅 스킵은 Esc/Enter/Space)
+- `prefers-reduced-motion` 존중: 타이핑·스캔라인·깜빡임·흔들림 연출 자동 비활성화
+- 애니메이션은 CSS `steps()` 기반으로 저사양에서도 가볍게 동작
+- 사운드는 오디오 파일 없이 Web Audio 오실레이터로 합성 (음소거 토글 상시 노출)

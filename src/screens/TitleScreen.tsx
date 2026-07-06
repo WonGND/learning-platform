@@ -1,5 +1,6 @@
 import { config } from '../config'
 import { sfx } from '../lib/sound'
+import { FunnelSection } from '../components/FunnelSection'
 
 interface Props {
   onStart: () => void
@@ -12,13 +13,14 @@ export function TitleScreen({ onStart, onClassCheck, onReplayBoot }: Props) {
   const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
   return (
     <div className="screen title-screen">
-      {config.brand.logoAscii && (
-        <pre className="logo-ascii" aria-hidden="true">
-          {config.brand.logoAscii}
-        </pre>
-      )}
-      <h1 className="title-name">{config.brand.title}</h1>
-      <p className="title-subtitle">{config.brand.subtitle}</p>
+      <div className="title-hero">
+        {config.brand.logoAscii && (
+          <pre className="logo-ascii" aria-hidden="true">
+            {config.brand.logoAscii}
+          </pre>
+        )}
+        <h1 className="title-name">{config.brand.title}</h1>
+        <p className="title-subtitle">{config.brand.subtitle}</p>
 
       <button
         type="button"
@@ -55,6 +57,10 @@ export function TitleScreen({ onStart, onClassCheck, onReplayBoot }: Props) {
       >
         REPLAY INTRO
       </button>
+      </div>
+
+      {/* 랜딩 하단 마케팅 퍼널 (스크롤 영역) */}
+      <FunnelSection heading="WHY THIS QUEST" />
 
       <p className="title-footer">© 2026 {config.brand.title} — INSERT COIN TO LEARN</p>
     </div>

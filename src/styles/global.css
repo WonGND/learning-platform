@@ -155,9 +155,19 @@ button {
 
 /* ---------- 타이틀 화면 ---------- */
 .title-screen {
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
   gap: 8px;
+}
+
+.title-hero {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .logo-ascii {
@@ -200,13 +210,10 @@ button {
 }
 
 .title-footer {
-  position: fixed;
-  bottom: 12px;
-  left: 0;
-  right: 0;
   text-align: center;
   color: var(--fg-faint);
   font-size: 0.7rem;
+  margin-top: 40px;
 }
 
 /* ---------- 음소거 토글 ---------- */
@@ -1060,4 +1067,153 @@ button {
 a.pixel-btn {
   text-decoration: none;
   display: inline-block;
+}
+
+/* ==========================================================
+   M6: 마케팅 퍼널 / 사례 / 10계명
+   ========================================================== */
+
+.funnel {
+  width: 100%;
+  max-width: 860px;
+  margin: 40px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.funnel-subtitle {
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  font-size: 0.95rem;
+  margin: 0 0 14px;
+  text-align: center;
+}
+
+/* ---------- 10계명 ---------- */
+.principles-panel {
+  border: 3px solid var(--fg-faint);
+  background: var(--bg-panel);
+  padding: 20px 24px;
+  width: 100%;
+  text-align: left;
+}
+
+.cases-panel,
+.cases-table-wrap {
+  text-align: left;
+}
+
+.principles-list {
+  margin: 0;
+  padding-left: 28px;
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--fg);
+}
+
+.principles-list li::marker {
+  color: var(--accent);
+}
+
+/* ---------- Before/After 사례 ---------- */
+.cases-panel {
+  width: 100%;
+}
+
+.cases-table-wrap {
+  overflow-x: auto;
+  border: 3px solid var(--fg-faint);
+  background: var(--bg-panel);
+}
+
+.cases-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.85rem;
+  min-width: 520px;
+}
+
+.cases-table th,
+.cases-table td {
+  border: 2px solid var(--fg-faint);
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.cases-table thead th {
+  color: var(--fg-faint);
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.cases-table tbody th {
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.case-before {
+  color: var(--danger);
+}
+
+.case-after {
+  color: var(--fg);
+}
+
+.case-metric {
+  color: var(--accent);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ---------- 가치 제안 카드 ---------- */
+.funnel-blocks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.funnel-block {
+  border: 3px solid var(--border);
+  background: var(--bg-panel);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.funnel-block-icon {
+  font-size: 1.6rem;
+}
+
+.funnel-block-title {
+  color: var(--accent);
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+.funnel-block-desc {
+  color: var(--fg-dim);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* ---------- CTA ---------- */
+.funnel-cta {
+  animation: blink-soft 1.6s steps(2) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funnel-cta {
+    animation: none;
+  }
 }

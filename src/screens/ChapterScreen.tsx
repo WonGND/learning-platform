@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
-import { config } from '../config'
+import { config, globalChapterIndex } from '../config'
 import { Hud } from '../components/Hud'
 import { Markdown } from '../components/Markdown'
+import { FunnelSection } from '../components/FunnelSection'
 import { useProgress } from '../state/ProgressContext'
 import { sfx } from '../lib/sound'
 
@@ -39,6 +40,11 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
   if (!current) return null
 
   const read = isCompleted(chapterId)
+  // 무료 콘텐츠 완주 지점(게이트 직전 챕터) 또는 전체 마지막 챕터 완료 시 퍼널 노출
+  const gate = config.membership.gateAfterChapter
+  const isLastFree = Number.isFinite(gate) && globalChapterIndex(chapterId) === gate
+  const isVeryLast = !next
+  const showFunnel = read && (isLastFree || isVeryLast)
 
   return (
     <div className="screen chapter-screen">
@@ -108,6 +114,13 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
           </button>
         )}
       </footer>
+
+      {showFunnel && (
+        <FunnelSection
+          heading={isVeryLast ? 'QUEST COMPLETE — NEXT LEVEL' : 'NEXT LEVEL'}
+          compact={!isVeryLast}
+        />
+      )}
     </div>
   )
 }
