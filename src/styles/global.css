@@ -773,3 +773,186 @@ button {
     font-size: 1rem;
   }
 }
+
+/* ==========================================================
+   M4: 업적 토스트 / 트로피룸 / 랜덤 인카운터
+   ========================================================== */
+
+/* ---------- 업적 토스트 ---------- */
+.achievement-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-panel);
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 18px rgba(255, 210, 62, 0.35);
+  padding: 12px 20px;
+  animation: toast-in 0.25s steps(4);
+  max-width: min(92vw, 480px);
+}
+
+.toast-icon {
+  color: var(--accent);
+  font-size: 1.5rem;
+}
+
+.toast-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.toast-label {
+  color: var(--fg-faint);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+}
+
+.toast-name {
+  color: var(--accent);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+}
+
+@keyframes toast-in {
+  from {
+    transform: translateX(-50%) translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ---------- 트로피룸 ---------- */
+.achievements-screen {
+  align-items: stretch;
+}
+
+.trophy-count {
+  text-align: center;
+  color: var(--fg-dim);
+  font-size: 0.85rem;
+  margin: -8px 0 20px;
+  letter-spacing: 0.15em;
+}
+
+.trophy-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.trophy-card {
+  border: 3px solid var(--fg-faint);
+  background: var(--bg-panel);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  opacity: 0.55;
+}
+
+.trophy-card.unlocked {
+  border-color: var(--accent);
+  opacity: 1;
+  box-shadow: inset 0 0 14px rgba(255, 210, 62, 0.12);
+}
+
+.trophy-icon {
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+
+.trophy-name {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.trophy-desc {
+  color: var(--fg-dim);
+  font-size: 0.75rem;
+  min-height: 2.4em;
+}
+
+.trophy-state {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--fg-faint);
+}
+
+.trophy-card.unlocked .trophy-state {
+  color: var(--accent);
+}
+
+/* ---------- 랜덤 인카운터 ---------- */
+.encounter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.encounter-card {
+  background: var(--bg-panel);
+  border: 4px double var(--danger);
+  box-shadow: 0 0 24px rgba(255, 85, 85, 0.3);
+  padding: 24px 28px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: encounter-shake 0.3s steps(6);
+}
+
+.encounter-header {
+  color: var(--danger);
+  letter-spacing: 0.2em;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.encounter-title {
+  color: var(--accent);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.encounter-text {
+  color: var(--fg);
+  font-size: 0.92rem;
+  margin: 0 0 10px;
+  line-height: 1.7;
+}
+
+@keyframes encounter-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast,
+  .encounter-card {
+    animation: none;
+  }
+}

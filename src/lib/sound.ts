@@ -63,4 +63,16 @@ export const sfx = {
   error(): void {
     beep(180, 0.15, 'sawtooth', 0.03)
   },
+  /** 업적 획득 팡파레 */
+  achievement(): void {
+    beep(660, 0.07, 'square', 0.035)
+    setTimeout(() => beep(880, 0.07, 'square', 0.035), 80)
+    setTimeout(() => beep(1046, 0.12, 'square', 0.035), 160)
+    setTimeout(() => beep(1318, 0.18, 'square', 0.03), 260)
+  },
+  /** RANDOM ENCOUNTER 등장 */
+  encounter(): void {
+    beep(300, 0.09, 'sawtooth', 0.03)
+    setTimeout(() => beep(240, 0.12, 'sawtooth', 0.03), 100)
+  },
 }

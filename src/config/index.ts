@@ -30,6 +30,7 @@ function normalize(raw: PartialAppConfig): AppConfig {
     quiz: raw.quiz ?? [],
     classes: raw.classes ?? [],
     achievements: raw.achievements ?? [],
+    encounters: raw.encounters ?? [],
     principles: raw.principles,
     cases: raw.cases,
     funnel: { ...FALLBACK.funnel, ...raw.funnel, blocks: raw.funnel?.blocks ?? [] },

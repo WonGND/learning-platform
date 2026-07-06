@@ -105,6 +105,13 @@ export interface Principles {
   items: string[]
 }
 
+/** RANDOM ENCOUNTER — 낮은 확률로 등장하는 짧은 팁/미션 카드 */
+export interface Encounter {
+  id: string
+  title?: string
+  text: string
+}
+
 export interface AppConfig {
   brand: Brand
   boot: BootConfig
@@ -112,6 +119,7 @@ export interface AppConfig {
   quiz: QuizQuestion[]
   classes: RecommendedClass[]
   achievements: Achievement[]
+  encounters?: Encounter[]
   principles?: Principles
   cases?: CaseStudy[]
   funnel: FunnelConfig
@@ -126,6 +134,7 @@ export type PartialAppConfig = {
   quiz?: QuizQuestion[]
   classes?: RecommendedClass[]
   achievements?: Achievement[]
+  encounters?: Encounter[]
   principles?: Principles
   cases?: CaseStudy[]
   funnel?: Partial<FunnelConfig>

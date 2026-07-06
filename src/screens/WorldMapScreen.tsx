@@ -7,6 +7,7 @@ import { sfx } from '../lib/sound'
 interface Props {
   onOpenChapter: (chapterId: string) => void
   onClassCheck: () => void
+  onOpenAchievements: () => void
   onBackToTitle: () => void
 }
 
@@ -14,7 +15,12 @@ interface Props {
  * 학습 월드맵 — 모드(스테이지)를 세로 맵으로 시각화.
  * 모드 클릭 시 챕터 목차가 펼쳐지고, 완료한 챕터에는 읽음 표시가 붙는다.
  */
-export function WorldMapScreen({ onOpenChapter, onClassCheck, onBackToTitle }: Props) {
+export function WorldMapScreen({
+  onOpenChapter,
+  onClassCheck,
+  onOpenAchievements,
+  onBackToTitle,
+}: Props) {
   const { isCompleted, quizResult } = useProgress()
   const playerClass = quizResult ? config.classes.find((c) => c.id === quizResult.classId) : null
   const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
@@ -101,6 +107,18 @@ export function WorldMapScreen({ onOpenChapter, onClassCheck, onBackToTitle }: P
       </section>
 
       <div className="map-footer-actions">
+        {config.achievements.length > 0 && (
+          <button
+            type="button"
+            className="pixel-btn ghost-btn"
+            onClick={() => {
+              sfx.confirm()
+              onOpenAchievements()
+            }}
+          >
+            ★ TROPHY
+          </button>
+        )}
         {hasQuiz && (
           <button
             type="button"
