@@ -1,0 +1,111 @@
+import { useState } from 'react'
+import { config } from '../config'
+import { Hud } from '../components/Hud'
+import { useProgress } from '../state/ProgressContext'
+import { sfx } from '../lib/sound'
+
+interface Props {
+  onOpenChapter: (chapterId: string) => void
+  onBackToTitle: () => void
+}
+
+/**
+ * 학습 월드맵 — 모드(스테이지)를 세로 맵으로 시각화.
+ * 모드 클릭 시 챕터 목차가 펼쳐지고, 완료한 챕터에는 읽음 표시가 붙는다.
+ */
+export function WorldMapScreen({ onOpenChapter, onBackToTitle }: Props) {
+  const { isCompleted } = useProgress()
+  // 기본으로 첫 번째 미완료 모드를 펼쳐 보여준다
+  const firstOpen = config.modes.findIndex((m) => m.chapters.some((c) => !isCompleted(c.id)))
+  const [openModeId, setOpenModeId] = useState<string | null>(
+    config.modes[firstOpen === -1 ? 0 : firstOpen]?.id ?? null,
+  )
+
+  const toggleMode = (modeId: string) => {
+    sfx.blip()
+    setOpenModeId((cur) => (cur === modeId ? null : modeId))
+  }
+
+  return (
+    <div className="screen main-screen">
+      <Hud />
+
+      <section className="worldmap">
+        <h2 className="section-title">— WORLD MAP —</h2>
+
+        {config.modes.length === 0 ? (
+          <p className="empty-note">콘텐츠가 아직 없다. content.ts 에 modes 를 채워라.</p>
+        ) : (
+          <ul className="mode-list">
+            {config.modes.map((mode, i) => {
+              const done = mode.chapters.filter((c) => isCompleted(c.id)).length
+              const total = mode.chapters.length
+              const cleared = total > 0 && done === total
+              const open = openModeId === mode.id
+              return (
+                <li className={`mode-card${cleared ? ' cleared' : ''}`} key={mode.id}>
+                  <button
+                    type="button"
+                    className="mode-toggle"
+                    aria-expanded={open}
+                    onClick={() => toggleMode(mode.id)}
+                  >
+                    <span className="mode-card-head">
+                      <span className="mode-index">STAGE {i + 1}</span>
+                      <span className="mode-name">{mode.name}</span>
+                      <span className={`mode-clear${cleared ? ' on' : ''}`}>
+                        {cleared ? '★ CLEAR' : `${done}/${total}`}
+                      </span>
+                      <span className="mode-arrow" aria-hidden="true">
+                        {open ? '▼' : '▶'}
+                      </span>
+                    </span>
+                    <span className="mode-desc">{mode.description}</span>
+                  </button>
+
+                  {open && (
+                    <ul className="chapter-list">
+                      {mode.chapters.map((ch) => {
+                        const read = isCompleted(ch.id)
+                        return (
+                          <li key={ch.id}>
+                            <button
+                              type="button"
+                              className={`chapter-row${read ? ' read' : ''}`}
+                              onClick={() => {
+                                sfx.confirm()
+                                onOpenChapter(ch.id)
+                              }}
+                            >
+                              <span className="chapter-mark" aria-hidden="true">
+                                {read ? '■' : '□'}
+                              </span>
+                              <span className="chapter-title">{ch.title}</span>
+                              <span className="chapter-summary">{ch.summary}</span>
+                              {read && <span className="chapter-read-badge">READ</span>}
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </section>
+
+      <button
+        type="button"
+        className="pixel-btn ghost-btn"
+        onClick={() => {
+          sfx.blip()
+          onBackToTitle()
+        }}
+      >
+        ◀ TITLE
+      </button>
+    </div>
+  )
+}
