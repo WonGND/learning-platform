@@ -20,6 +20,10 @@ interface ProgressValue {
   /** 진단 퀴즈 결과 (미응시면 null) */
   quizResult: QuizResult | null
   saveQuizResult: (result: QuizResult) => void
+  /** 멤버십 게이트 해제 여부 */
+  membershipUnlocked: boolean
+  /** 입장 코드 검증. 성공 시 해제 상태를 저장하고 true 반환 */
+  tryUnlockMembership: (code: string) => boolean
 }
 
 const ProgressContext = createContext<ProgressValue | null>(null)
@@ -69,6 +73,21 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     save('quizResult', result)
   }, [])
 
+  const [membershipUnlocked, setMembershipUnlocked] = useState<boolean>(
+    () => load<unknown>('membership', false) === true,
+  )
+
+  // 클라이언트 검증 — 무료 멤버십 유도 용도로만 사용 (유료 콘텐츠 보호 불가)
+  const tryUnlockMembership = useCallback((code: string): boolean => {
+    const normalized = code.trim().toUpperCase()
+    const ok = config.membership.validCodes.some((c) => c.trim().toUpperCase() === normalized)
+    if (ok) {
+      setMembershipUnlocked(true)
+      save('membership', true)
+    }
+    return ok
+  }, [])
+
   const completeChapter = useCallback((chapterId: string) => {
     setCompleted((prev) => {
       if (prev.includes(chapterId)) return prev
@@ -97,8 +116,20 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completedModeCount,
       quizResult,
       saveQuizResult,
+      membershipUnlocked,
+      tryUnlockMembership,
     }),
-    [completed, playtimeMs, completeChapter, isCompleted, completedModeCount, quizResult, saveQuizResult],
+    [
+      completed,
+      playtimeMs,
+      completeChapter,
+      isCompleted,
+      completedModeCount,
+      quizResult,
+      saveQuizResult,
+      membershipUnlocked,
+      tryUnlockMembership,
+    ],
   )
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>

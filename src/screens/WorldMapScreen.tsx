@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { config } from '../config'
+import { config, isChapterLocked } from '../config'
 import { Hud } from '../components/Hud'
 import { useProgress } from '../state/ProgressContext'
 import { sfx } from '../lib/sound'
@@ -21,7 +21,7 @@ export function WorldMapScreen({
   onOpenAchievements,
   onBackToTitle,
 }: Props) {
-  const { isCompleted, quizResult } = useProgress()
+  const { isCompleted, quizResult, membershipUnlocked } = useProgress()
   const playerClass = quizResult ? config.classes.find((c) => c.id === quizResult.classId) : null
   const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
   // 기본으로 첫 번째 미완료 모드를 펼쳐 보여준다
@@ -77,22 +77,28 @@ export function WorldMapScreen({
                     <ul className="chapter-list">
                       {mode.chapters.map((ch) => {
                         const read = isCompleted(ch.id)
+                        const locked = isChapterLocked(ch.id, membershipUnlocked)
                         return (
                           <li key={ch.id}>
                             <button
                               type="button"
-                              className={`chapter-row${read ? ' read' : ''}`}
+                              className={`chapter-row${read ? ' read' : ''}${locked ? ' locked' : ''}`}
+                              aria-label={locked ? `${ch.title} (멤버십 잠금)` : undefined}
                               onClick={() => {
                                 sfx.confirm()
                                 onOpenChapter(ch.id)
                               }}
                             >
                               <span className="chapter-mark" aria-hidden="true">
-                                {read ? '■' : '□'}
+                                {locked ? '🔒' : read ? '■' : '□'}
                               </span>
                               <span className="chapter-title">{ch.title}</span>
                               <span className="chapter-summary">{ch.summary}</span>
-                              {read && <span className="chapter-read-badge">READ</span>}
+                              {locked ? (
+                                <span className="chapter-lock-badge">MEMBERS</span>
+                              ) : (
+                                read && <span className="chapter-read-badge">READ</span>
+                              )}
                             </button>
                           </li>
                         )

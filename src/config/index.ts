@@ -46,3 +46,28 @@ export const config: AppConfig = normalize(content ?? {})
 
 /** 전체 챕터 수 (통계·게이트 계산에 사용) */
 export const totalChapters = config.modes.reduce((n, m) => n + m.chapters.length, 0)
+
+/** 전체 챕터 평탄화 순서에서의 1-based 위치. 없으면 -1 */
+export function globalChapterIndex(chapterId: string): number {
+  let i = 0
+  for (const mode of config.modes) {
+    for (const chapter of mode.chapters) {
+      i += 1
+      if (chapter.id === chapterId) return i
+    }
+  }
+  return -1
+}
+
+/**
+ * 멤버십 게이트: gateAfterChapter(1-based) 이후 챕터는 해제 전까지 잠금.
+ * 주의 — 클라이언트 검증이므로 "무료 멤버십 유도" 용도로만 쓰고,
+ * 이 코드로 유료 콘텐츠를 보호하지 마라.
+ */
+export function isChapterLocked(chapterId: string, membershipUnlocked: boolean): boolean {
+  if (membershipUnlocked) return false
+  const gate = config.membership.gateAfterChapter
+  if (typeof gate !== 'number' || !Number.isFinite(gate)) return false
+  const idx = globalChapterIndex(chapterId)
+  return idx > 0 && idx > gate
+}
