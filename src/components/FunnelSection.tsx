@@ -6,6 +6,8 @@ interface Props {
   heading?: string
   /** true면 10계명/사례를 생략하고 가치 제안 + CTA만 (챕터 하단용 컴팩트 버전) */
   compact?: boolean
+  /** 고지 문구 표시 여부 (타이틀 화면은 자체 푸터에 표시하므로 끔) */
+  showDisclaimer?: boolean
 }
 
 /**
@@ -13,7 +15,7 @@ interface Props {
  * + 설계자의 10계명(principles) + 외부 유료 강의 CTA.
  * 관련 config 필드가 비어 있으면 각 부분을 자연스럽게 숨긴다.
  */
-export function FunnelSection({ heading, compact = false }: Props) {
+export function FunnelSection({ heading, compact = false, showDisclaimer = true }: Props) {
   const { funnel, cases, principles } = config
   const hasBlocks = funnel.blocks.length > 0
   const hasCta = funnel.ctaText !== '' && funnel.url !== ''
@@ -91,6 +93,10 @@ export function FunnelSection({ heading, compact = false }: Props) {
         >
           {funnel.ctaText}
         </a>
+      )}
+
+      {showDisclaimer && config.brand.disclaimer && (
+        <p className="disclaimer">{config.brand.disclaimer}</p>
       )}
     </section>
   )

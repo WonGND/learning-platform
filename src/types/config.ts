@@ -7,6 +7,8 @@ export interface Brand {
   title: string
   subtitle: string
   logoAscii?: string
+  /** 투자/법적 고지 문구 — 랜딩 하단과 퍼널 CTA 아래에 상시 노출 */
+  disclaimer?: string
 }
 
 export interface BootConfig {

@@ -59,9 +59,10 @@ export function TitleScreen({ onStart, onClassCheck, onReplayBoot }: Props) {
       </button>
       </div>
 
-      {/* 랜딩 하단 마케팅 퍼널 (스크롤 영역) */}
-      <FunnelSection heading="WHY THIS QUEST" />
+      {/* 랜딩 하단 마케팅 퍼널 (스크롤 영역) — 고지는 아래 푸터에서 한 번만 */}
+      <FunnelSection heading="WHY THIS QUEST" showDisclaimer={false} />
 
+      {config.brand.disclaimer && <p className="disclaimer">{config.brand.disclaimer}</p>}
       <p className="title-footer">© 2026 {config.brand.title} — INSERT COIN TO LEARN</p>
     </div>
   )

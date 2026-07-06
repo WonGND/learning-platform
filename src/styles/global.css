@@ -1217,3 +1217,15 @@ a.pixel-btn {
     animation: none;
   }
 }
+
+/* ---------- 투자 고지 ---------- */
+.disclaimer {
+  color: var(--fg-faint);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  max-width: 64ch;
+  margin: 32px auto 0;
+  text-align: center;
+  border-top: 2px dashed var(--fg-faint);
+  padding-top: 14px;
+}
