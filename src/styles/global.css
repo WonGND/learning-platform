@@ -1,0 +1,361 @@
+/* ==========================================================
+   RETRO CRT 디자인 시스템 — 도트 폰트 / 스캔라인 / 네온 톤
+   ========================================================== */
+
+:root {
+  --bg: #050a06;
+  --bg-panel: #0a140c;
+  --fg: #33ff66;
+  --fg-dim: #1e9c44;
+  --fg-faint: #10682c;
+  --accent: #ffd23e;
+  --danger: #ff5555;
+  --border: #1e9c44;
+  --font-pixel: 'Galmuri11', 'Galmuri9', 'DungGeunMo', 'Courier New', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  line-height: 1.65;
+  text-shadow: 0 0 6px rgba(51, 255, 102, 0.35);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ---------- CRT 프레임: 스캔라인 + 비네트 ---------- */
+.crt {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.crt::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.18) 3px,
+    rgba(0, 0, 0, 0.18) 4px
+  );
+}
+
+.crt::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 51;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* ---------- 공통 화면 레이아웃 ---------- */
+.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ---------- 픽셀 버튼 ---------- */
+.pixel-btn {
+  background: var(--bg-panel);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  box-shadow:
+    inset -3px -3px 0 rgba(0, 0, 0, 0.6),
+    inset 3px 3px 0 rgba(51, 255, 102, 0.15);
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: transform 0.05s steps(1);
+}
+
+.pixel-btn:hover,
+.pixel-btn:focus-visible {
+  background: var(--fg-faint);
+  color: #eaffe8;
+  outline: none;
+}
+
+.pixel-btn:focus-visible {
+  border-color: var(--accent);
+}
+
+.pixel-btn:active {
+  transform: translateY(2px);
+}
+
+.ghost-btn {
+  border-color: var(--fg-faint);
+  color: var(--fg-dim);
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  margin-top: 16px;
+}
+
+/* ---------- 부팅 화면 ---------- */
+.boot-screen {
+  align-items: flex-start;
+  justify-content: flex-start;
+  cursor: pointer;
+}
+
+.boot-lines {
+  width: 100%;
+  padding-top: 12px;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.boot-line {
+  min-height: 1.65em;
+}
+
+.cursor {
+  animation: blink-cursor 0.8s steps(1) infinite;
+}
+
+.boot-skip {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 60;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+}
+
+/* ---------- 타이틀 화면 ---------- */
+.title-screen {
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.logo-ascii {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(255, 210, 62, 0.4);
+  font-family: 'Courier New', monospace;
+  font-size: clamp(6px, 1.6vw, 12px);
+  line-height: 1.2;
+  margin: 0 0 8px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.title-name {
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+
+.title-subtitle {
+  color: var(--fg-dim);
+  margin: 0 0 32px;
+}
+
+.start-btn {
+  font-size: 1.15rem;
+  padding: 16px 36px;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.start-btn:hover,
+.start-btn:focus-visible {
+  background: #2a2408;
+  color: #ffe89a;
+}
+
+.blink {
+  animation: blink-soft 1.2s steps(2) infinite;
+}
+
+.title-footer {
+  position: fixed;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--fg-faint);
+  font-size: 0.7rem;
+}
+
+/* ---------- 음소거 토글 ---------- */
+.mute-toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 70;
+  background: var(--bg-panel);
+  color: var(--fg-dim);
+  border: 2px solid var(--fg-faint);
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mute-toggle:hover,
+.mute-toggle:focus-visible {
+  color: var(--fg);
+  border-color: var(--border);
+  outline: none;
+}
+
+/* ---------- 메인 화면 (M1 셸) ---------- */
+.main-screen {
+  align-items: stretch;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  border: 3px solid var(--border);
+  background: var(--bg-panel);
+  padding: 10px 16px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+}
+
+.hud-brand {
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.hud-stats {
+  color: var(--fg-dim);
+}
+
+.section-title {
+  text-align: center;
+  letter-spacing: 0.2em;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.mode-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.mode-card {
+  border: 3px solid var(--fg-faint);
+  background: var(--bg-panel);
+  padding: 14px 18px;
+}
+
+.mode-card-head {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.mode-index {
+  color: var(--accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.mode-name {
+  font-size: 1.05rem;
+}
+
+.mode-desc {
+  color: var(--fg-dim);
+  margin: 6px 0 4px;
+  font-size: 0.9rem;
+}
+
+.mode-meta {
+  color: var(--fg-faint);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.milestone-note,
+.empty-note {
+  color: var(--fg-faint);
+  text-align: center;
+  font-size: 0.8rem;
+  margin-top: 24px;
+}
+
+/* ---------- 애니메이션 ---------- */
+@keyframes blink-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes blink-soft {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0.35; }
+}
+
+/* ---------- 접근성: 동작 줄이기 존중 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .crt::before,
+  .crt::after {
+    display: none;
+  }
+
+  .blink,
+  .cursor {
+    animation: none;
+  }
+
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---------- 모바일 ---------- */
+@media (max-width: 520px) {
+  body {
+    font-size: 14px;
+  }
+
+  .screen {
+    padding: 16px 12px 40px;
+  }
+
+  .hud {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
