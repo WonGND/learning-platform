@@ -14,6 +14,8 @@ interface ProgressValue {
   /** 누적 플레이 타임 (ms) */
   playtimeMs: number
   completeChapter: (chapterId: string) => void
+  /** 완료 취소 — COMPLETED 버튼 재클릭 시 */
+  uncompleteChapter: (chapterId: string) => void
   isCompleted: (chapterId: string) => boolean
   /** 모든 챕터가 완료된 모드 수 */
   completedModeCount: number
@@ -97,6 +99,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const uncompleteChapter = useCallback((chapterId: string) => {
+    setCompleted((prev) => {
+      if (!prev.includes(chapterId)) return prev
+      const next = prev.filter((id) => id !== chapterId)
+      save('completed', next)
+      return next
+    })
+  }, [])
+
   const isCompleted = useCallback((chapterId: string) => completed.includes(chapterId), [completed])
 
   const completedModeCount = useMemo(
@@ -112,6 +123,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completed,
       playtimeMs,
       completeChapter,
+      uncompleteChapter,
       isCompleted,
       completedModeCount,
       quizResult,
@@ -123,6 +135,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completed,
       playtimeMs,
       completeChapter,
+      uncompleteChapter,
       isCompleted,
       completedModeCount,
       quizResult,

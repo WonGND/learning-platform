@@ -25,7 +25,7 @@ function locate(chapterId: string) {
 
 /** 챕터 뷰어 — 마크다운 본문 렌더링 + 완료 처리 + 이전/다음 챕터 이동 */
 export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) {
-  const { isCompleted, completeChapter } = useProgress()
+  const { isCompleted, completeChapter, uncompleteChapter } = useProgress()
   const { current, prev, next } = locate(chapterId)
 
   // 잘못된 챕터 id 방어: 월드맵으로 복귀
@@ -92,10 +92,16 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
         <button
           type="button"
           className={`pixel-btn complete-btn${read ? ' done' : ''}`}
-          disabled={read}
+          aria-pressed={read}
+          title={read ? '다시 누르면 완료가 취소된다' : undefined}
           onClick={() => {
-            sfx.confirm()
-            completeChapter(chapterId)
+            if (read) {
+              sfx.blip()
+              uncompleteChapter(chapterId)
+            } else {
+              sfx.confirm()
+              completeChapter(chapterId)
+            }
           }}
         >
           {read ? '■ COMPLETED' : '□ 챕터 완료'}

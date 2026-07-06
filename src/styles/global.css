@@ -524,7 +524,12 @@ button {
 .complete-btn.done {
   border-color: var(--fg-faint);
   color: var(--fg-dim);
-  cursor: default;
+}
+
+.complete-btn.done:hover,
+.complete-btn.done:focus-visible {
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 /* ---------- 마크다운 본문 ---------- */
