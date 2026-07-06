@@ -11,17 +11,21 @@ interface Props {
   onBackToMap: () => void
 }
 
-/** 전체 챕터를 평탄화한 순서에서 현재/다음 챕터를 찾는다 */
+/** 전체 챕터를 평탄화한 순서에서 이전/현재/다음 챕터를 찾는다 */
 function locate(chapterId: string) {
   const flat = config.modes.flatMap((mode) => mode.chapters.map((chapter) => ({ mode, chapter })))
   const index = flat.findIndex((e) => e.chapter.id === chapterId)
-  return { current: index >= 0 ? flat[index] : null, next: flat[index + 1] ?? null }
+  return {
+    current: index >= 0 ? flat[index] : null,
+    prev: index > 0 ? flat[index - 1] : null,
+    next: flat[index + 1] ?? null,
+  }
 }
 
-/** 챕터 뷰어 — 마크다운 본문 렌더링 + 완료 처리 + 다음 챕터 이동 */
+/** 챕터 뷰어 — 마크다운 본문 렌더링 + 완료 처리 + 이전/다음 챕터 이동 */
 export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) {
   const { isCompleted, completeChapter } = useProgress()
-  const { current, next } = locate(chapterId)
+  const { current, prev, next } = locate(chapterId)
 
   // 잘못된 챕터 id 방어: 월드맵으로 복귀
   useEffect(() => {
@@ -63,8 +67,21 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
             onBackToMap()
           }}
         >
-          ◀ MAP
+          ■ MAP
         </button>
+
+        {prev && (
+          <button
+            type="button"
+            className="pixel-btn"
+            onClick={() => {
+              sfx.confirm()
+              onOpenChapter(prev.chapter.id)
+            }}
+          >
+            ◀ PREV
+          </button>
+        )}
 
         <button
           type="button"

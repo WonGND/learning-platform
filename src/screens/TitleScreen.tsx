@@ -3,11 +3,13 @@ import { sfx } from '../lib/sound'
 
 interface Props {
   onStart: () => void
+  onClassCheck: () => void
   onReplayBoot: () => void
 }
 
-/** 타이틀 화면 — 로고 + PLAYER 1 START */
-export function TitleScreen({ onStart, onReplayBoot }: Props) {
+/** 타이틀 화면 — 로고 + PLAYER 1 START + CLASS CHECK */
+export function TitleScreen({ onStart, onClassCheck, onReplayBoot }: Props) {
+  const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
   return (
     <div className="screen title-screen">
       {config.brand.logoAscii && (
@@ -29,6 +31,19 @@ export function TitleScreen({ onStart, onReplayBoot }: Props) {
       >
         ▶ PLAYER 1 START
       </button>
+
+      {hasQuiz && (
+        <button
+          type="button"
+          className="pixel-btn class-check-btn"
+          onClick={() => {
+            sfx.confirm()
+            onClassCheck()
+          }}
+        >
+          ◈ CLASS CHECK (30초 진단)
+        </button>
+      )}
 
       <button
         type="button"

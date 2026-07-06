@@ -3,11 +3,12 @@ import { BootScreen } from './screens/BootScreen'
 import { TitleScreen } from './screens/TitleScreen'
 import { WorldMapScreen } from './screens/WorldMapScreen'
 import { ChapterScreen } from './screens/ChapterScreen'
+import { QuizScreen } from './screens/QuizScreen'
 import { MuteToggle } from './components/MuteToggle'
 import { ProgressProvider } from './state/ProgressContext'
 import { load, save } from './lib/storage'
 
-type Screen = 'boot' | 'title' | 'map' | 'chapter'
+type Screen = 'boot' | 'title' | 'map' | 'chapter' | 'quiz'
 
 /**
  * 화면 상태 머신 (라우터 대신 단일 페이지 상태 전환 —
@@ -27,6 +28,7 @@ export default function App() {
   const toTitle = useCallback(() => setScreen('title'), [])
   const toMap = useCallback(() => setScreen('map'), [])
   const toBoot = useCallback(() => setScreen('boot'), [])
+  const toQuiz = useCallback(() => setScreen('quiz'), [])
   const openChapter = useCallback((id: string) => {
     setChapterId(id)
     setScreen('chapter')
@@ -37,11 +39,16 @@ export default function App() {
       <div className="crt">
         <MuteToggle />
         {screen === 'boot' && <BootScreen onDone={toTitle} />}
-        {screen === 'title' && <TitleScreen onStart={toMap} onReplayBoot={toBoot} />}
-        {screen === 'map' && <WorldMapScreen onOpenChapter={openChapter} onBackToTitle={toTitle} />}
+        {screen === 'title' && (
+          <TitleScreen onStart={toMap} onClassCheck={toQuiz} onReplayBoot={toBoot} />
+        )}
+        {screen === 'map' && (
+          <WorldMapScreen onOpenChapter={openChapter} onClassCheck={toQuiz} onBackToTitle={toTitle} />
+        )}
         {screen === 'chapter' && chapterId && (
           <ChapterScreen chapterId={chapterId} onOpenChapter={openChapter} onBackToMap={toMap} />
         )}
+        {screen === 'quiz' && <QuizScreen onOpenChapter={openChapter} onBackToMap={toMap} />}
       </div>
     </ProgressProvider>
   )

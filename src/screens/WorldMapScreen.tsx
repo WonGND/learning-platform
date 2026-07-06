@@ -6,6 +6,7 @@ import { sfx } from '../lib/sound'
 
 interface Props {
   onOpenChapter: (chapterId: string) => void
+  onClassCheck: () => void
   onBackToTitle: () => void
 }
 
@@ -13,8 +14,10 @@ interface Props {
  * 학습 월드맵 — 모드(스테이지)를 세로 맵으로 시각화.
  * 모드 클릭 시 챕터 목차가 펼쳐지고, 완료한 챕터에는 읽음 표시가 붙는다.
  */
-export function WorldMapScreen({ onOpenChapter, onBackToTitle }: Props) {
-  const { isCompleted } = useProgress()
+export function WorldMapScreen({ onOpenChapter, onClassCheck, onBackToTitle }: Props) {
+  const { isCompleted, quizResult } = useProgress()
+  const playerClass = quizResult ? config.classes.find((c) => c.id === quizResult.classId) : null
+  const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
   // 기본으로 첫 번째 미완료 모드를 펼쳐 보여준다
   const firstOpen = config.modes.findIndex((m) => m.chapters.some((c) => !isCompleted(c.id)))
   const [openModeId, setOpenModeId] = useState<string | null>(
@@ -32,6 +35,7 @@ export function WorldMapScreen({ onOpenChapter, onBackToTitle }: Props) {
 
       <section className="worldmap">
         <h2 className="section-title">— WORLD MAP —</h2>
+        {playerClass && <p className="player-class">CLASS: {playerClass.name}</p>}
 
         {config.modes.length === 0 ? (
           <p className="empty-note">콘텐츠가 아직 없다. content.ts 에 modes 를 채워라.</p>
@@ -96,16 +100,30 @@ export function WorldMapScreen({ onOpenChapter, onBackToTitle }: Props) {
         )}
       </section>
 
-      <button
-        type="button"
-        className="pixel-btn ghost-btn"
-        onClick={() => {
-          sfx.blip()
-          onBackToTitle()
-        }}
-      >
-        ◀ TITLE
-      </button>
+      <div className="map-footer-actions">
+        {hasQuiz && (
+          <button
+            type="button"
+            className="pixel-btn ghost-btn"
+            onClick={() => {
+              sfx.confirm()
+              onClassCheck()
+            }}
+          >
+            ◈ CLASS CHECK
+          </button>
+        )}
+        <button
+          type="button"
+          className="pixel-btn ghost-btn"
+          onClick={() => {
+            sfx.blip()
+            onBackToTitle()
+          }}
+        >
+          ◀ TITLE
+        </button>
+      </div>
     </div>
   )
 }

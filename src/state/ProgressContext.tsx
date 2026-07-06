@@ -3,6 +3,11 @@ import type { ReactNode } from 'react'
 import { config } from '../config'
 import { load, save } from '../lib/storage'
 
+export interface QuizResult {
+  classId: string
+  score: number
+}
+
 interface ProgressValue {
   /** 완료한 챕터 id 목록 */
   completed: string[]
@@ -12,6 +17,9 @@ interface ProgressValue {
   isCompleted: (chapterId: string) => boolean
   /** 모든 챕터가 완료된 모드 수 */
   completedModeCount: number
+  /** 진단 퀴즈 결과 (미응시면 null) */
+  quizResult: QuizResult | null
+  saveQuizResult: (result: QuizResult) => void
 }
 
 const ProgressContext = createContext<ProgressValue | null>(null)
@@ -43,6 +51,24 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(timer)
   }, [])
 
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(() => {
+    const raw = load<unknown>('quizResult', null)
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      typeof (raw as QuizResult).classId === 'string' &&
+      typeof (raw as QuizResult).score === 'number'
+    ) {
+      return raw as QuizResult
+    }
+    return null
+  })
+
+  const saveQuizResult = useCallback((result: QuizResult) => {
+    setQuizResult(result)
+    save('quizResult', result)
+  }, [])
+
   const completeChapter = useCallback((chapterId: string) => {
     setCompleted((prev) => {
       if (prev.includes(chapterId)) return prev
@@ -63,8 +89,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   )
 
   const value = useMemo(
-    () => ({ completed, playtimeMs, completeChapter, isCompleted, completedModeCount }),
-    [completed, playtimeMs, completeChapter, isCompleted, completedModeCount],
+    () => ({
+      completed,
+      playtimeMs,
+      completeChapter,
+      isCompleted,
+      completedModeCount,
+      quizResult,
+      saveQuizResult,
+    }),
+    [completed, playtimeMs, completeChapter, isCompleted, completedModeCount, quizResult, saveQuizResult],
   )
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>
