@@ -2,3 +2,8 @@ node_modules
 dist
 *.tsbuildinfo
 .DS_Store
+
+# 환경변수·유료 콘텐츠 원본 (레포에 절대 커밋 금지)
+.env
+.env.*.local
+content-paid/*.local.*
