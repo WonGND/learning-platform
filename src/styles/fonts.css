@@ -1,0 +1,19 @@
+/*
+ * 도트 폰트 self-host — galmuri 패키지(OFL-1.1)에서 실제 사용하는
+ * Galmuri11 레귤러/볼드 woff2만 번들한다 (전체 galmuri.css import 시 40MB 폭증 방지).
+ */
+@font-face {
+  font-family: 'Galmuri11';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('~galmuri/Galmuri11.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Galmuri11';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('~galmuri/Galmuri11-Bold.woff2') format('woff2');
+}
