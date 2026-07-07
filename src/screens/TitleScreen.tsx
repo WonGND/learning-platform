@@ -1,16 +1,25 @@
-import { config } from '../config'
+import { config, findChapterEntry, firstUncompletedChapterId } from '../config'
 import { sfx } from '../lib/sound'
 import { FunnelSection } from '../components/FunnelSection'
+import { useProgress } from '../state/ProgressContext'
 
 interface Props {
   onStart: () => void
+  onContinue: (chapterId: string) => void
   onClassCheck: () => void
   onReplayBoot: () => void
 }
 
-/** 타이틀 화면 — 로고 + PLAYER 1 START + CLASS CHECK */
-export function TitleScreen({ onStart, onClassCheck, onReplayBoot }: Props) {
+/** 타이틀 화면 — 로고 + PLAYER 1 START + CONTINUE + CLASS CHECK */
+export function TitleScreen({ onStart, onContinue, onClassCheck, onReplayBoot }: Props) {
   const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
+  const { completed, lastChapterId } = useProgress()
+
+  // 이어서 학습: 마지막으로 연 챕터 → 없으면 첫 미완료 챕터
+  const continueId =
+    (lastChapterId && findChapterEntry(lastChapterId) ? lastChapterId : null) ??
+    (completed.length > 0 ? firstUncompletedChapterId(completed) : null)
+  const continueEntry = continueId ? findChapterEntry(continueId) : null
   return (
     <div className="screen title-screen">
       <div className="title-hero">
@@ -33,6 +42,19 @@ export function TitleScreen({ onStart, onClassCheck, onReplayBoot }: Props) {
       >
         ▶ PLAYER 1 START
       </button>
+
+      {continueEntry && continueId && (
+        <button
+          type="button"
+          className="pixel-btn continue-btn"
+          onClick={() => {
+            sfx.confirm()
+            onContinue(continueId)
+          }}
+        >
+          ↻ CONTINUE — {continueEntry.chapter.title}
+        </button>
+      )}
 
       {hasQuiz && (
         <button

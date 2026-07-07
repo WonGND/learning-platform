@@ -26,6 +26,9 @@ interface ProgressValue {
   membershipUnlocked: boolean
   /** 입장 코드 검증. 성공 시 해제 상태를 저장하고 true 반환 */
   tryUnlockMembership: (code: string) => boolean
+  /** 마지막으로 연 챕터 (이어서 학습 진입점) */
+  lastChapterId: string | null
+  rememberChapter: (chapterId: string) => void
 }
 
 const ProgressContext = createContext<ProgressValue | null>(null)
@@ -99,6 +102,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const [lastChapterId, setLastChapterId] = useState<string | null>(() => {
+    const raw = load<unknown>('lastChapter', null)
+    return typeof raw === 'string' ? raw : null
+  })
+
+  const rememberChapter = useCallback((chapterId: string) => {
+    setLastChapterId(chapterId)
+    save('lastChapter', chapterId)
+  }, [])
+
   const uncompleteChapter = useCallback((chapterId: string) => {
     setCompleted((prev) => {
       if (!prev.includes(chapterId)) return prev
@@ -130,6 +143,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       saveQuizResult,
       membershipUnlocked,
       tryUnlockMembership,
+      lastChapterId,
+      rememberChapter,
     }),
     [
       completed,
@@ -142,6 +157,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       saveQuizResult,
       membershipUnlocked,
       tryUnlockMembership,
+      lastChapterId,
+      rememberChapter,
     ],
   )
 

@@ -3,6 +3,7 @@ import { config, globalChapterIndex } from '../config'
 import { Hud } from '../components/Hud'
 import { Markdown } from '../components/Markdown'
 import { FunnelSection } from '../components/FunnelSection'
+import { CheckQuiz } from '../components/CheckQuiz'
 import { useProgress } from '../state/ProgressContext'
 import { sfx } from '../lib/sound'
 
@@ -63,6 +64,10 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
       <article className="chapter-body">
         <Markdown source={current.chapter.body} />
       </article>
+
+      {current.chapter.check && current.chapter.check.length > 0 && (
+        <CheckQuiz key={chapterId} questions={current.chapter.check} />
+      )}
 
       <footer className="chapter-actions">
         <button

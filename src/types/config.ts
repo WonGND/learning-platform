@@ -18,12 +18,24 @@ export interface BootConfig {
   durationMs: number
 }
 
+/** 챕터 말미의 지식 확인 문제 (선택 필드 — 없으면 섹션 숨김) */
+export interface CheckQuestion {
+  question: string
+  options: string[]
+  /** options 의 0-based 정답 인덱스 */
+  answerIndex: number
+  /** 정답/오답 시 보여줄 해설 */
+  explanation?: string
+}
+
 export interface Chapter {
   id: string
   title: string
   summary: string
   /** 마크다운 문자열 — 챕터 뷰어에서 렌더링 */
   body: string
+  /** 지식 확인 문제 (선택) */
+  check?: CheckQuestion[]
 }
 
 export interface Mode {

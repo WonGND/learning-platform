@@ -1234,3 +1234,158 @@ a.pixel-btn {
   border-top: 2px dashed var(--fg-faint);
   padding-top: 14px;
 }
+
+/* ==========================================================
+   Phase 2: 지식 확인 / 이어서 학습 / 완주율 / 추천 경로
+   ========================================================== */
+
+/* ---------- 지식 확인 (KNOWLEDGE CHECK) ---------- */
+.check-quiz {
+  width: 100%;
+  margin-top: 28px;
+  border: 3px dashed var(--fg-faint);
+  background: var(--bg-panel);
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.check-quiz .section-title {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.check-question {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.check-options {
+  display: grid;
+  gap: 8px;
+}
+
+.check-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: none;
+  border: 2px solid var(--fg-faint);
+  color: var(--fg);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+
+.check-option:hover,
+.check-option:focus-visible {
+  border-color: var(--border);
+  background: rgba(51, 255, 102, 0.06);
+  outline: none;
+}
+
+.check-option.answer {
+  border-color: var(--fg);
+  color: #b6ffc9;
+}
+
+.check-option.wrong {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.check-feedback {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+.check-feedback.ok {
+  color: var(--accent);
+}
+
+/* ---------- 이어서 학습 / 완주율 ---------- */
+.continue-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-top: 12px;
+}
+
+.continue-btn:hover,
+.continue-btn:focus-visible {
+  background: #2a2408;
+  color: #ffe89a;
+}
+
+.map-continue {
+  margin: 0 0 20px;
+  align-self: center;
+}
+
+.map-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: -8px 0 16px;
+}
+
+.map-progress-label {
+  color: var(--fg-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.complete-banner {
+  border: 3px double var(--accent);
+  background: rgba(255, 210, 62, 0.08);
+  color: var(--accent);
+  text-align: center;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+/* ---------- 추천 학습 경로 ---------- */
+.path-list {
+  border-top: 2px dashed var(--fg-faint);
+  padding-top: 12px;
+  width: 100%;
+  text-align: center;
+}
+
+.path-title {
+  color: var(--fg-faint);
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  margin: 0 0 8px;
+}
+
+.path-list ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+}
+
+.path-list li.dim {
+  color: var(--fg-faint);
+}
+
+.path-list li.here {
+  color: var(--accent);
+}
+
+.path-role {
+  font-size: 0.7rem;
+  color: var(--fg-dim);
+  margin-left: 8px;
+}

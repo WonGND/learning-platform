@@ -79,6 +79,23 @@ export function QuizScreen({ onOpenChapter, onBackToMap }: Props) {
             </p>
             <p className="result-desc">{result.description}</p>
 
+            {config.modes.length > 0 && (
+              <div className="path-list">
+                <p className="path-title">추천 학습 경로</p>
+                <ol>
+                  {config.modes.map((m, i) => {
+                    const startIdx = config.modes.findIndex((x) => x.id === result.startModeId)
+                    const role = i < startIdx ? '복습 · 선택' : i === startIdx ? '◀ 여기서 시작' : '다음 목표'
+                    return (
+                      <li key={m.id} className={i < startIdx ? 'dim' : i === startIdx ? 'here' : ''}>
+                        {m.name} <span className="path-role">{role}</span>
+                      </li>
+                    )
+                  })}
+                </ol>
+              </div>
+            )}
+
             {start ? (
               <button
                 type="button"

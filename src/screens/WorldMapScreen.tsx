@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import { config, isChapterLocked } from '../config'
+import {
+  config,
+  isChapterLocked,
+  totalChapters,
+  findChapterEntry,
+  firstUncompletedChapterId,
+} from '../config'
 import { Hud } from '../components/Hud'
 import { useProgress } from '../state/ProgressContext'
 import { sfx } from '../lib/sound'
@@ -21,7 +27,14 @@ export function WorldMapScreen({
   onOpenAchievements,
   onBackToTitle,
 }: Props) {
-  const { isCompleted, quizResult, membershipUnlocked } = useProgress()
+  const { isCompleted, quizResult, membershipUnlocked, completed, lastChapterId } = useProgress()
+  const pct = totalChapters > 0 ? Math.round((completed.length / totalChapters) * 100) : 0
+  const allDone = totalChapters > 0 && completed.length >= totalChapters
+  const continueId =
+    (lastChapterId && !isCompleted(lastChapterId) && findChapterEntry(lastChapterId)
+      ? lastChapterId
+      : null) ?? firstUncompletedChapterId(completed)
+  const continueEntry = continueId ? findChapterEntry(continueId) : null
   const playerClass = quizResult ? config.classes.find((c) => c.id === quizResult.classId) : null
   const hasQuiz = config.quiz.length > 0 && config.classes.length > 0
   // 기본으로 첫 번째 미완료 모드를 펼쳐 보여준다
@@ -38,6 +51,33 @@ export function WorldMapScreen({
   return (
     <div className="screen main-screen">
       <Hud />
+
+      <div className="map-progress" aria-label={`전체 완주율 ${pct}%`}>
+        <span className="map-progress-label">TOTAL {pct}%</span>
+        <div className="quiz-bar" aria-hidden="true">
+          <div className="quiz-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      {allDone ? (
+        <div className="complete-banner" role="status">
+          🏆 QUEST COMPLETE — 모든 챕터를 완주했다{playerClass ? `, ${playerClass.name}` : ''}!
+        </div>
+      ) : (
+        continueEntry &&
+        continueId && (
+          <button
+            type="button"
+            className="pixel-btn continue-btn map-continue"
+            onClick={() => {
+              sfx.confirm()
+              onOpenChapter(continueId)
+            }}
+          >
+            ↻ CONTINUE — {continueEntry.mode.name} · {continueEntry.chapter.title}
+          </button>
+        )
+      )}
 
       <section className="worldmap">
         <h2 className="section-title">— WORLD MAP —</h2>

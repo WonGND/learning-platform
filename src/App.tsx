@@ -38,7 +38,7 @@ export default function App() {
  * 잠긴 챕터로의 모든 진입(월드맵/NEXT/퀴즈 CTA)은 게이트를 거친다.
  */
 function AppShell() {
-  const { membershipUnlocked } = useProgress()
+  const { membershipUnlocked, rememberChapter } = useProgress()
   const [screen, setScreen] = useState<Screen>(() =>
     load<boolean>('visited', false) ? 'title' : 'boot',
   )
@@ -79,9 +79,10 @@ function AppShell() {
       }
       setChapterId(id)
       setScreen('chapter')
+      rememberChapter(id)
       rollEncounter()
     },
-    [membershipUnlocked, rollEncounter],
+    [membershipUnlocked, rememberChapter, rollEncounter],
   )
 
   /** 게이트 해제 성공: 원래 가려던 챕터로 이동 */
@@ -100,7 +101,12 @@ function AppShell() {
       <MuteToggle />
       {screen === 'boot' && <BootScreen onDone={toTitle} />}
       {screen === 'title' && (
-        <TitleScreen onStart={toMap} onClassCheck={toQuiz} onReplayBoot={toBoot} />
+        <TitleScreen
+          onStart={toMap}
+          onContinue={openChapter}
+          onClassCheck={toQuiz}
+          onReplayBoot={toBoot}
+        />
       )}
       {screen === 'map' && (
         <WorldMapScreen

@@ -71,3 +71,23 @@ export function isChapterLocked(chapterId: string, membershipUnlocked: boolean):
   const idx = globalChapterIndex(chapterId)
   return idx > 0 && idx > gate
 }
+
+/** 챕터 id로 모드·챕터 엔트리 조회 */
+export function findChapterEntry(chapterId: string) {
+  for (const mode of config.modes) {
+    for (const chapter of mode.chapters) {
+      if (chapter.id === chapterId) return { mode, chapter }
+    }
+  }
+  return null
+}
+
+/** 전체 순서 기준 첫 미완료 챕터 id ("이어서 학습" 기본 진입점) */
+export function firstUncompletedChapterId(completed: string[]): string | null {
+  for (const mode of config.modes) {
+    for (const chapter of mode.chapters) {
+      if (!completed.includes(chapter.id)) return chapter.id
+    }
+  }
+  return null
+}
