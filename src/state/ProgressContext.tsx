@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react'
 import { config } from '../config'
 import { load, save } from '../lib/storage'
+import { track } from '../lib/analytics'
 
 export interface QuizResult {
   classId: string
@@ -98,6 +99,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       if (prev.includes(chapterId)) return prev
       const next = [...prev, chapterId]
       save('completed', next)
+      track('chapter_complete', { chapter: chapterId, total: next.length })
       return next
     })
   }, [])

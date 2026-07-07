@@ -8,6 +8,7 @@ import { AchievementsScreen } from './screens/AchievementsScreen'
 import { GateScreen } from './screens/GateScreen'
 import { MuteToggle } from './components/MuteToggle'
 import { EncounterModal } from './components/EncounterModal'
+import { ConsentBanner } from './components/ConsentBanner'
 import { ProgressProvider, useProgress } from './state/ProgressContext'
 import { AchievementProvider } from './state/AchievementContext'
 import { config, isChapterLocked, findChapterEntry } from './config'
@@ -155,6 +156,7 @@ function AppShell() {
         />
       )}
       {encounter && <EncounterModal encounter={encounter} onClose={() => setEncounter(null)} />}
+      <ConsentBanner />
     </div>
   )
 }

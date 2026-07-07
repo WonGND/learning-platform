@@ -33,7 +33,12 @@ function normalize(raw: PartialAppConfig): AppConfig {
     encounters: raw.encounters ?? [],
     principles: raw.principles,
     cases: raw.cases,
-    funnel: { ...FALLBACK.funnel, ...raw.funnel, blocks: raw.funnel?.blocks ?? [] },
+    funnel: {
+      ...FALLBACK.funnel,
+      ...raw.funnel,
+      blocks: raw.funnel?.blocks ?? [],
+      testimonials: raw.funnel?.testimonials ?? [],
+    },
     membership: {
       ...FALLBACK.membership,
       ...raw.membership,

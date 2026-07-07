@@ -1,9 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { config } from '../config'
+import { config, findChapterEntry } from '../config'
 import { Hud } from '../components/Hud'
+import { Markdown } from '../components/Markdown'
 import { useProgress } from '../state/ProgressContext'
 import { sfx } from '../lib/sound'
+import { track } from '../lib/analytics'
+
+/** 잠긴 챕터 본문에서 무료 미리보기 조각을 뽑는다 (도입부 + 첫 섹션까지, 최대 700자) */
+function previewOf(body: string): string {
+  const sections = body.split(/^## /m)
+  // 도입(제목+훅) + 첫 번째 "## " 섹션까지
+  const cut = sections.length > 2 ? sections[0] + '## ' + sections[1] : body
+  return cut.length > 700 ? cut.slice(0, 700) + '…' : cut
+}
 
 interface Props {
   /** 해제 성공 시 이동할 챕터 */
@@ -22,13 +32,25 @@ export function GateScreen({ pendingChapterId, onUnlocked, onBackToMap }: Props)
   const [code, setCode] = useState('')
   const [error, setError] = useState(false)
 
+  const pendingEntry = pendingChapterId ? findChapterEntry(pendingChapterId) : null
+  const preview = useMemo(
+    () => (pendingEntry ? previewOf(pendingEntry.chapter.body) : null),
+    [pendingEntry],
+  )
+
+  useEffect(() => {
+    track('gate_view', pendingChapterId ? { chapter: pendingChapterId } : undefined)
+  }, [pendingChapterId])
+
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (tryUnlockMembership(code)) {
       sfx.achievement()
+      track('gate_unlocked')
       onUnlocked(pendingChapterId)
     } else {
       sfx.error()
+      track('gate_denied')
       setError(true)
     }
   }
@@ -36,6 +58,17 @@ export function GateScreen({ pendingChapterId, onUnlocked, onBackToMap }: Props)
   return (
     <div className="screen gate-screen">
       <Hud />
+
+      {/* 무료 미리보기 — 가치를 먼저 보여주고 막는다 */}
+      {preview && pendingEntry && (
+        <div className="gate-preview" aria-label="무료 미리보기">
+          <article className="chapter-body gate-preview-body">
+            <Markdown source={preview} />
+          </article>
+          <div className="gate-preview-fade" aria-hidden="true" />
+          <p className="gate-preview-note">── 여기까지 무료 미리보기 ──</p>
+        </div>
+      )}
 
       <div className="gate-card">
         <pre className="gate-art" aria-hidden="true">{String.raw`
@@ -59,7 +92,10 @@ export function GateScreen({ pendingChapterId, onUnlocked, onBackToMap }: Props)
             href={config.membership.channelUrl}
             target="_blank"
             rel="noreferrer"
-            onClick={() => sfx.confirm()}
+            onClick={() => {
+              sfx.confirm()
+              track('channel_click')
+            }}
           >
             ▶ 무료 멤버십 채널 바로가기
           </a>

@@ -101,10 +101,21 @@ export interface FunnelBlock {
   icon?: string
 }
 
+/**
+ * 수강생 후기 — 반드시 실제 후기(실명·동의)로만 채워라.
+ * placeholder: true 인 항목은 화면에 "예시 자리"로 표시된다 (날조 방지 장치).
+ */
+export interface Testimonial {
+  quote: string
+  author: string
+  placeholder?: boolean
+}
+
 export interface FunnelConfig {
   ctaText: string
   url: string
   blocks: FunnelBlock[]
+  testimonials?: Testimonial[]
 }
 
 export interface MembershipConfig {

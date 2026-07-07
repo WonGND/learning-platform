@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { config } from '../config'
 import { useProgress } from '../state/ProgressContext'
 import { sfx } from '../lib/sound'
+import { track } from '../lib/analytics'
 import type { RecommendedClass } from '../types/config'
 
 interface Props {
@@ -58,6 +59,7 @@ export function QuizScreen({ onOpenChapter, onBackToMap }: Props) {
   useEffect(() => {
     if (finished && result) {
       saveQuizResult({ classId: result.id, score })
+      track('quiz_complete', { classId: result.id, score })
       sfx.start()
     }
   }, [finished, result, score, saveQuizResult])

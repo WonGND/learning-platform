@@ -157,6 +157,24 @@ membership: {
 | 외부 리소스 | 없음 — 폰트(Galmuri)는 npm 패키지로 self-host 번들 |
 | 의존성 | `npm audit` 취약점 0건 (2026-07-07 기준, 주기적 재점검 권장) |
 
+### 출시 전 교체 체크리스트 (플레이스홀더)
+
+- [ ] `funnel.url` — 실제 유료 강의/부트캠프 링크로 교체 (현재 example.com)
+- [ ] `membership.channelUrl` — 실제 무료 멤버십 채널 링크로 교체
+- [ ] `membership.validCodes` — 실제 배포용 입장 코드로 교체
+- [ ] `funnel.testimonials` — **실제 수강생 후기(동의 필수)로 교체하거나 비워서 섹션 숨김.**
+      `placeholder: true` 항목은 화면에 "예시 자리"로 표시되어 실제 후기처럼 보이지 않는다.
+      후기·수익률·성과 수치 날조 금지.
+
+### 분석 (동의 기반, 기본 오프)
+
+- 최초 방문 시 동의 배너 표시 — **동의 전에는 어떤 이벤트도 수집하지 않는다** (거절 시 영구 오프)
+- 수집 이벤트: `chapter_complete` `quiz_complete` `gate_view` `gate_unlocked` `gate_denied`
+  `channel_click` `cta_click` — PII 없음
+- 이벤트는 외부 전송 없이 `window.__qqEvents` 큐에만 쌓인다. GA4/Plausible 등을 붙이려면
+  `src/lib/analytics.ts`의 어댑터 지점에서 전송 코드를 추가하고, CSP `connect-src`에 해당
+  도메인을 허용하며, 아래 개인정보 요건을 이행하라.
+
 **개인정보**: 현재 이 앱은 **개인정보를 수집하지 않는다.** 모든 상태(진행률·업적·멤버십 해제)는
 사용자 기기의 localStorage에만 저장되며 서버로 전송되지 않는다.
 향후 분석(퍼널 이벤트)·계정·결제를 도입하는 경우 다음 요건이 발생한다:

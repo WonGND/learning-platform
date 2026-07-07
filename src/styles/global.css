@@ -1574,3 +1574,114 @@ body.no-fx .crt::after {
   border-top: none;
   padding-top: 0;
 }
+
+/* ==========================================================
+   Phase 4: 게이트 미리보기 / 후기 / 동의 배너
+   ========================================================== */
+
+/* ---------- 게이트 무료 미리보기 ---------- */
+.gate-preview {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.gate-preview-body {
+  max-height: 420px;
+  overflow: hidden;
+}
+
+.gate-preview-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 28px;
+  height: 160px;
+  background: linear-gradient(to bottom, transparent, var(--bg) 92%);
+  pointer-events: none;
+}
+
+.gate-preview-note {
+  text-align: center;
+  color: var(--fg-faint);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  margin: 6px 0 0;
+}
+
+/* ---------- 후기 ---------- */
+.testimonials {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.testimonial {
+  border: 3px solid var(--fg-faint);
+  background: var(--bg-panel);
+  padding: 16px 18px;
+  position: relative;
+}
+
+.testimonial.placeholder {
+  border-style: dashed;
+  opacity: 0.65;
+}
+
+.testimonial-tag {
+  display: inline-block;
+  color: var(--danger);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--danger);
+  padding: 2px 6px;
+  margin-bottom: 8px;
+}
+
+.testimonial-quote {
+  margin: 0 0 8px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.testimonial-author {
+  margin: 0;
+  color: var(--fg-dim);
+  font-size: 0.78rem;
+  text-align: right;
+}
+
+/* ---------- 분석 동의 배너 ---------- */
+.consent-banner {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 85;
+  max-width: min(92vw, 380px);
+  border: 3px solid var(--border);
+  background: var(--bg-panel);
+  padding: 14px 16px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
+}
+
+.consent-text {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--fg);
+}
+
+.consent-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.consent-btn {
+  font-size: 0.75rem;
+  padding: 7px 14px;
+  margin-top: 0;
+}

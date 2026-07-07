@@ -1709,6 +1709,20 @@ df['ret'] = df['signal'].shift(1) * df['close'].pct_change()  # O
         description: '킬 스위치·승급 기준표·운영자 계약서·일일 리포트 — 마스터의 탑 양식의 실전판 포함',
       },
     ],
+    // ⚠ 후기 날조 금지 — 실제 수강생 후기(실명 또는 동의된 필명)로만 교체하라.
+    // placeholder: true 항목은 화면에 "예시 자리"로 표시되어 실제 후기처럼 보이지 않는다.
+    testimonials: [
+      {
+        quote: '(여기에 실제 수강생 후기를 받아 채우세요 — 성과 수치가 아닌 경험 중심 문구 권장)',
+        author: '수강생 이름 (동의 필수)',
+        placeholder: true,
+      },
+      {
+        quote: '(두 번째 후기 자리 — 후기가 없다면 이 배열을 비워두면 섹션이 숨겨집니다)',
+        author: '수강생 이름 (동의 필수)',
+        placeholder: true,
+      },
+    ],
   },
 
   membership: {

@@ -1,5 +1,6 @@
 import { config } from '../config'
 import { sfx } from '../lib/sound'
+import { track } from '../lib/analytics'
 
 interface Props {
   /** 섹션 상단 헤드라인 (배치 지점별로 다르게) */
@@ -21,8 +22,10 @@ export function FunnelSection({ heading, compact = false, showDisclaimer = true 
   const hasCta = funnel.ctaText !== '' && funnel.url !== ''
   const hasCases = !compact && !!cases && cases.length > 0
   const hasPrinciples = !compact && !!principles && principles.items.length > 0
+  const testimonials = funnel.testimonials ?? []
+  const hasTestimonials = !compact && testimonials.length > 0
 
-  if (!hasBlocks && !hasCta && !hasCases && !hasPrinciples) return null
+  if (!hasBlocks && !hasCta && !hasCases && !hasPrinciples && !hasTestimonials) return null
 
   return (
     <section className="funnel">
@@ -83,13 +86,28 @@ export function FunnelSection({ heading, compact = false, showDisclaimer = true 
         </ul>
       )}
 
+      {hasTestimonials && (
+        <ul className="testimonials" aria-label="수강생 후기">
+          {testimonials.map((t, i) => (
+            <li className={`testimonial${t.placeholder ? ' placeholder' : ''}`} key={i}>
+              {t.placeholder && <span className="testimonial-tag">예시 자리 — 실제 후기로 교체</span>}
+              <p className="testimonial-quote">“{t.quote}”</p>
+              <p className="testimonial-author">— {t.author}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {hasCta && (
         <a
           className="pixel-btn start-btn funnel-cta"
           href={funnel.url}
           target="_blank"
           rel="noreferrer"
-          onClick={() => sfx.start()}
+          onClick={() => {
+            sfx.start()
+            track('cta_click', { url: funnel.url })
+          }}
         >
           {funnel.ctaText}
         </a>
