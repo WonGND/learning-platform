@@ -1389,3 +1389,188 @@ a.pixel-btn {
   color: var(--fg-dim);
   margin-left: 8px;
 }
+
+/* ==========================================================
+   Phase 3: 라우팅/읽기 옵션/진행바/목차/검색
+   ========================================================== */
+
+/* ---------- 본문 스크롤 진행바 ---------- */
+.read-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(51, 255, 102, 0.12);
+  z-index: 75;
+}
+
+.read-progress-fill {
+  height: 100%;
+  background: var(--accent);
+}
+
+/* ---------- 읽기 옵션 툴바 ---------- */
+.chapter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.read-minutes {
+  color: var(--fg-faint);
+  font-size: 0.75rem;
+  margin-right: auto;
+}
+
+.toolbar-group {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.toolbar-btn {
+  background: var(--bg-panel);
+  border: 2px solid var(--fg-faint);
+  color: var(--fg-dim);
+  font-family: inherit;
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.toolbar-btn:hover:not(:disabled),
+.toolbar-btn:focus-visible {
+  border-color: var(--border);
+  color: var(--fg);
+  outline: none;
+}
+
+.toolbar-btn.on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- 챕터 목차 ---------- */
+.chapter-toc {
+  width: 100%;
+  border: 2px dashed var(--fg-faint);
+  background: var(--bg-panel);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.chapter-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.toc-link {
+  background: none;
+  border: none;
+  color: var(--fg-dim);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 2px 0;
+  text-align: left;
+}
+
+.toc-link:hover,
+.toc-link:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+/* ---------- 글자 배율 ---------- */
+.chapter-body .markdown {
+  font-size: calc(0.95rem * var(--reading-scale, 1));
+}
+
+/* ---------- 읽기 모드: 본문 한정 연출 약화 (가독성 > 감성) ---------- */
+body.no-fx .crt::before,
+body.no-fx .crt::after {
+  display: none;
+}
+
+.read-mode .chapter-body {
+  background: #0b1410;
+}
+
+.read-mode .chapter-body .markdown {
+  font-family: -apple-system, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR', sans-serif;
+  text-shadow: none;
+  line-height: 1.9;
+  letter-spacing: 0;
+  color: #cfe8d4;
+}
+
+.read-mode .chapter-body .markdown h1,
+.read-mode .chapter-body .markdown h2,
+.read-mode .chapter-body .markdown h3 {
+  text-shadow: none;
+}
+
+/* ---------- 고대비 모드 ---------- */
+.high-contrast .chapter-body {
+  background: #000;
+  border-color: #9a9a9a;
+}
+
+.high-contrast .chapter-body .markdown {
+  color: #fff;
+  text-shadow: none;
+}
+
+.high-contrast .chapter-body .markdown h1,
+.high-contrast .chapter-body .markdown h2,
+.high-contrast .chapter-body .markdown h3 {
+  color: #ffe066;
+  text-shadow: none;
+}
+
+.high-contrast .chapter-body .markdown blockquote {
+  color: #ffe9a8;
+}
+
+.high-contrast .chapter-body .markdown td,
+.high-contrast .chapter-body .markdown th {
+  border-color: #8a8a8a;
+}
+
+/* ---------- 월드맵 검색 ---------- */
+.map-search {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.map-search-input {
+  background: #041008;
+  border: 2px solid var(--fg-faint);
+  color: var(--fg);
+  font-family: var(--font-pixel);
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  width: min(100%, 320px);
+}
+
+.map-search-input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.search-results {
+  margin-bottom: 20px;
+  border-top: none;
+  padding-top: 0;
+}

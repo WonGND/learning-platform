@@ -12,7 +12,10 @@ marked.setOptions({ gfm: true })
 export function Markdown({ source }: { source: string }) {
   const html = useMemo(() => {
     const raw = marked.parse(source, { async: false })
-    return DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
+    const clean = DOMPurify.sanitize(raw, { USE_PROFILES: { html: true } })
+    // 목차 앵커: h2에 등장 순서대로 sec-N id 부여 (ChapterScreen의 목차와 순서 일치)
+    let i = 0
+    return clean.replace(/<h2>/g, () => `<h2 id="sec-${i++}">`)
   }, [source])
   return <div className="markdown" dangerouslySetInnerHTML={{ __html: html }} />
 }

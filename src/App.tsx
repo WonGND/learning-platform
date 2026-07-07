@@ -10,12 +10,11 @@ import { MuteToggle } from './components/MuteToggle'
 import { EncounterModal } from './components/EncounterModal'
 import { ProgressProvider, useProgress } from './state/ProgressContext'
 import { AchievementProvider } from './state/AchievementContext'
-import { config, isChapterLocked } from './config'
+import { config, isChapterLocked, findChapterEntry } from './config'
+import { useHashRoute } from './hooks/useHashRoute'
 import { load, save } from './lib/storage'
 import { sfx } from './lib/sound'
 import type { Encounter } from './types/config'
-
-type Screen = 'boot' | 'title' | 'map' | 'chapter' | 'quiz' | 'achievements' | 'gate'
 
 /** RANDOM ENCOUNTER 등장 확률과 최소 간격 */
 const ENCOUNTER_CHANCE = 0.12
@@ -32,33 +31,46 @@ export default function App() {
 }
 
 /**
- * 화면 상태 머신 (라우터 대신 단일 페이지 상태 전환 —
- * 레트로 게임의 "장면 전환" 감성과 맞고 딥링크가 필요 없는 구조).
- * boot → title → map ⇄ (chapter | quiz | achievements | gate).
- * 잠긴 챕터로의 모든 진입(월드맵/NEXT/퀴즈 CTA)은 게이트를 거친다.
+ * 해시 라우트가 화면의 단일 진실 공급원이다 (딥링크·새로고침 복원·뒤로가기 지원).
+ * 부팅 연출은 라우트 밖의 오버레이 상태 — 첫 방문 시에만 자동 재생된다.
+ * 잠긴 챕터로의 모든 진입(딥링크 포함)은 게이트로 리다이렉트된다.
  */
 function AppShell() {
   const { membershipUnlocked, rememberChapter } = useProgress()
-  const [screen, setScreen] = useState<Screen>(() =>
-    load<boolean>('visited', false) ? 'title' : 'boot',
-  )
-  const [chapterId, setChapterId] = useState<string | null>(null)
-  const [pendingChapterId, setPendingChapterId] = useState<string | null>(null)
+  const [route, navigate] = useHashRoute()
+  const [booting, setBooting] = useState<boolean>(() => !load<boolean>('visited', false))
   const [encounter, setEncounter] = useState<Encounter | null>(null)
   const lastEncounterAt = useRef(0)
 
+  const toMap = useCallback(() => navigate({ screen: 'map' }), [navigate])
+  const toTitle = useCallback(() => navigate({ screen: 'title' }), [navigate])
+  const toQuiz = useCallback(() => navigate({ screen: 'quiz' }), [navigate])
+  const toAchievements = useCallback(() => navigate({ screen: 'achievements' }), [navigate])
+
+  const openChapter = useCallback(
+    (id: string) => {
+      if (isChapterLocked(id, membershipUnlocked)) {
+        sfx.error()
+        navigate({ screen: 'gate', pendingChapterId: id })
+        return
+      }
+      navigate({ screen: 'chapter', chapterId: id })
+    },
+    [membershipUnlocked, navigate],
+  )
+
+  // 딥링크로 잠긴 챕터에 직접 진입한 경우에도 게이트로
   useEffect(() => {
-    if (screen !== 'boot') save('visited', true)
-  }, [screen])
+    if (route.screen === 'chapter' && isChapterLocked(route.chapterId, membershipUnlocked)) {
+      navigate({ screen: 'gate', pendingChapterId: route.chapterId })
+    }
+  }, [route, membershipUnlocked, navigate])
 
-  const toTitle = useCallback(() => setScreen('title'), [])
-  const toMap = useCallback(() => setScreen('map'), [])
-  const toBoot = useCallback(() => setScreen('boot'), [])
-  const toQuiz = useCallback(() => setScreen('quiz'), [])
-  const toAchievements = useCallback(() => setScreen('achievements'), [])
-
-  /** 챕터 진입 시 낮은 확률로 사이드 퀘스트(팁 카드) 팝업 */
-  const rollEncounter = useCallback(() => {
+  // 챕터 진입 부수효과: 이어보기 기억 + 낮은 확률 인카운터
+  useEffect(() => {
+    if (route.screen !== 'chapter') return
+    if (isChapterLocked(route.chapterId, membershipUnlocked)) return
+    rememberChapter(route.chapterId)
     const list = config.encounters ?? []
     if (list.length === 0) return
     const now = Date.now()
@@ -67,48 +79,58 @@ function AppShell() {
     lastEncounterAt.current = now
     setEncounter(list[Math.floor(Math.random() * list.length)])
     sfx.encounter()
-  }, [])
+  }, [route, membershipUnlocked, rememberChapter])
 
-  const openChapter = useCallback(
-    (id: string) => {
-      if (isChapterLocked(id, membershipUnlocked)) {
-        sfx.error()
-        setPendingChapterId(id)
-        setScreen('gate')
-        return
-      }
-      setChapterId(id)
-      setScreen('chapter')
-      rememberChapter(id)
-      rollEncounter()
+  // 라우트별 문서 제목 (챕터별 메타)
+  useEffect(() => {
+    const brand = config.brand.title
+    let title = brand
+    if (route.screen === 'chapter') {
+      const entry = findChapterEntry(route.chapterId)
+      if (entry) title = `${entry.chapter.title} — ${brand}`
+    } else if (route.screen === 'map') title = `월드맵 — ${brand}`
+    else if (route.screen === 'quiz') title = `CLASS CHECK — ${brand}`
+    else if (route.screen === 'achievements') title = `TROPHY ROOM — ${brand}`
+    document.title = title
+  }, [route])
+
+  const onGateUnlocked = useCallback(
+    (id: string | null) => {
+      if (id) navigate({ screen: 'chapter', chapterId: id })
+      else navigate({ screen: 'map' })
     },
-    [membershipUnlocked, rememberChapter, rollEncounter],
+    [navigate],
   )
 
-  /** 게이트 해제 성공: 원래 가려던 챕터로 이동 */
-  const onGateUnlocked = useCallback((id: string | null) => {
-    setPendingChapterId(null)
-    if (id) {
-      setChapterId(id)
-      setScreen('chapter')
-    } else {
-      setScreen('map')
-    }
-  }, [])
+  if (booting) {
+    return (
+      <div className="crt">
+        <MuteToggle />
+        <BootScreen
+          onDone={() => {
+            save('visited', true)
+            setBooting(false)
+          }}
+        />
+      </div>
+    )
+  }
+
+  const chapterLocked =
+    route.screen === 'chapter' && isChapterLocked(route.chapterId, membershipUnlocked)
 
   return (
     <div className="crt">
       <MuteToggle />
-      {screen === 'boot' && <BootScreen onDone={toTitle} />}
-      {screen === 'title' && (
+      {route.screen === 'title' && (
         <TitleScreen
           onStart={toMap}
           onContinue={openChapter}
           onClassCheck={toQuiz}
-          onReplayBoot={toBoot}
+          onReplayBoot={() => setBooting(true)}
         />
       )}
-      {screen === 'map' && (
+      {route.screen === 'map' && (
         <WorldMapScreen
           onOpenChapter={openChapter}
           onClassCheck={toQuiz}
@@ -116,14 +138,18 @@ function AppShell() {
           onBackToTitle={toTitle}
         />
       )}
-      {screen === 'chapter' && chapterId && (
-        <ChapterScreen chapterId={chapterId} onOpenChapter={openChapter} onBackToMap={toMap} />
+      {route.screen === 'chapter' && !chapterLocked && (
+        <ChapterScreen
+          chapterId={route.chapterId}
+          onOpenChapter={openChapter}
+          onBackToMap={toMap}
+        />
       )}
-      {screen === 'quiz' && <QuizScreen onOpenChapter={openChapter} onBackToMap={toMap} />}
-      {screen === 'achievements' && <AchievementsScreen onBackToMap={toMap} />}
-      {screen === 'gate' && (
+      {route.screen === 'quiz' && <QuizScreen onOpenChapter={openChapter} onBackToMap={toMap} />}
+      {route.screen === 'achievements' && <AchievementsScreen onBackToMap={toMap} />}
+      {route.screen === 'gate' && (
         <GateScreen
-          pendingChapterId={pendingChapterId}
+          pendingChapterId={route.pendingChapterId}
           onUnlocked={onGateUnlocked}
           onBackToMap={toMap}
         />

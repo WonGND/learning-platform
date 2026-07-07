@@ -48,6 +48,20 @@ export function WorldMapScreen({
     setOpenModeId((cur) => (cur === modeId ? null : modeId))
   }
 
+  // 챕터 검색: 제목·요약 대상, 입력 시 아코디언 대신 평면 결과 목록
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  const searchResults = q
+    ? config.modes.flatMap((mode) =>
+        mode.chapters
+          .filter(
+            (ch) =>
+              ch.title.toLowerCase().includes(q) || ch.summary.toLowerCase().includes(q),
+          )
+          .map((chapter) => ({ mode, chapter })),
+      )
+    : null
+
   return (
     <div className="screen main-screen">
       <Hud />
@@ -83,7 +97,50 @@ export function WorldMapScreen({
         <h2 className="section-title">— WORLD MAP —</h2>
         {playerClass && <p className="player-class">CLASS: {playerClass.name}</p>}
 
-        {config.modes.length === 0 ? (
+        {config.modes.length > 0 && (
+          <div className="map-search">
+            <input
+              type="search"
+              className="map-search-input"
+              placeholder="챕터 검색…"
+              value={query}
+              aria-label="챕터 검색"
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+        )}
+
+        {searchResults && (
+          <ul className="chapter-list search-results" aria-label="검색 결과">
+            {searchResults.length === 0 && <li className="empty-note">일치하는 챕터가 없다.</li>}
+            {searchResults.map(({ mode, chapter }) => {
+              const readCh = isCompleted(chapter.id)
+              const locked = isChapterLocked(chapter.id, membershipUnlocked)
+              return (
+                <li key={chapter.id}>
+                  <button
+                    type="button"
+                    className={`chapter-row${readCh ? ' read' : ''}${locked ? ' locked' : ''}`}
+                    onClick={() => {
+                      sfx.confirm()
+                      onOpenChapter(chapter.id)
+                    }}
+                  >
+                    <span className="chapter-mark" aria-hidden="true">
+                      {locked ? '🔒' : readCh ? '■' : '□'}
+                    </span>
+                    <span className="chapter-title">{chapter.title}</span>
+                    <span className="chapter-summary">
+                      {mode.name} · {chapter.summary}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        {!searchResults && (config.modes.length === 0 ? (
           <p className="empty-note">콘텐츠가 아직 없다. content.ts 에 modes 를 채워라.</p>
         ) : (
           <ul className="mode-list">
@@ -149,7 +206,7 @@ export function WorldMapScreen({
               )
             })}
           </ul>
-        )}
+        ))}
       </section>
 
       <div className="map-footer-actions">
