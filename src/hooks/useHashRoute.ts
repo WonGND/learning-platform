@@ -14,6 +14,7 @@ export type Route =
   | { screen: 'chapter'; chapterId: string }
   | { screen: 'gate'; pendingChapterId: string | null }
   | { screen: 'pay'; outcome: 'success' | 'fail'; query: string }
+  | { screen: 'legal'; doc: 'terms' | 'refund' | 'privacy' }
 
 export function parseRoute(hash: string): Route {
   const raw = hash.replace(/^#/, '')
@@ -24,6 +25,11 @@ export function parseRoute(hash: string): Route {
   const parts = path.split('/').filter(Boolean)
   if (parts[0] === 'pay') {
     return { screen: 'pay', outcome: parts[1] === 'success' ? 'success' : 'fail', query }
+  }
+  if (parts[0] === 'legal') {
+    const d = parts[1]
+    const doc = d === 'refund' || d === 'privacy' ? d : 'terms'
+    return { screen: 'legal', doc }
   }
   switch (parts[0]) {
     case undefined:
@@ -66,6 +72,8 @@ export function routeToHash(route: Route): string {
         : '#/gate'
     case 'pay':
       return `#/pay/${route.outcome}`
+    case 'legal':
+      return `#/legal/${route.doc}`
   }
 }
 

@@ -1714,3 +1714,23 @@ body.no-fx .crt::after {
   text-decoration: none;
   display: inline-block;
 }
+
+/* ---------- 법적 링크 / 사업자 정보 (푸터) ---------- */
+.legal-links {
+  text-align: center;
+  font-size: 0.72rem;
+  margin: 20px 0 6px;
+  color: var(--fg-faint);
+}
+.legal-links a {
+  color: var(--fg-dim);
+}
+.legal-links a:hover {
+  color: var(--accent);
+}
+.business-info {
+  text-align: center;
+  color: var(--fg-faint);
+  font-size: 0.68rem;
+  margin: 0 0 4px;
+}

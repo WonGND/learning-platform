@@ -85,6 +85,19 @@ export function TitleScreen({ onStart, onContinue, onClassCheck, onReplayBoot }:
       <FunnelSection heading="WHY THIS QUEST" showDisclaimer={false} />
 
       {config.brand.disclaimer && <p className="disclaimer">{config.brand.disclaimer}</p>}
+
+      <nav className="legal-links" aria-label="법적 고지">
+        <a href="#/legal/terms">이용약관</a>
+        <span aria-hidden="true"> · </span>
+        <a href="#/legal/refund">환불정책</a>
+        <span aria-hidden="true"> · </span>
+        <a href="#/legal/privacy">개인정보처리방침</a>
+      </nav>
+      {/* ⚠ 결제 오픈 전 실제 사업자 정보로 교체: 상호·대표자·사업자등록번호·
+          통신판매업 신고번호·주소·연락처 */}
+      <p className="business-info">
+        [상호] · 대표 [대표자] · 사업자등록번호 [ ] · 통신판매업신고 [ ] · [연락처]
+      </p>
       <p className="title-footer">© 2026 {config.brand.title} — INSERT COIN TO LEARN</p>
     </div>
   )

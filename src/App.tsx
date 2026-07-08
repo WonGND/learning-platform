@@ -7,6 +7,7 @@ import { QuizScreen } from './screens/QuizScreen'
 import { AchievementsScreen } from './screens/AchievementsScreen'
 import { GateScreen } from './screens/GateScreen'
 import { PaymentResultScreen } from './screens/PaymentResultScreen'
+import { LegalScreen } from './screens/LegalScreen'
 import { MuteToggle } from './components/MuteToggle'
 import { EncounterModal } from './components/EncounterModal'
 import { ConsentBanner } from './components/ConsentBanner'
@@ -163,6 +164,7 @@ function AppShell() {
       {route.screen === 'pay' && (
         <PaymentResultScreen outcome={route.outcome} query={route.query} onDone={toMap} />
       )}
+      {route.screen === 'legal' && <LegalScreen doc={route.doc} onBack={toTitle} />}
       {encounter && <EncounterModal encounter={encounter} onClose={() => setEncounter(null)} />}
       <ConsentBanner />
     </div>
