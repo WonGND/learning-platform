@@ -65,16 +65,17 @@ export function globalChapterIndex(chapterId: string): number {
 }
 
 /**
- * 멤버십 게이트: gateAfterChapter(1-based) 이후 챕터는 해제 전까지 잠금.
- * 주의 — 클라이언트 검증이므로 "무료 멤버십 유도" 용도로만 쓰고,
- * 이 코드로 유료 콘텐츠를 보호하지 마라.
+ * 유료 챕터 잠금 판정 — 챕터의 paid 플래그와 서버 엔타이틀먼트로만 결정한다.
+ * hasPaidAccess 는 Supabase 세션 + entitlements/is_admin 을 서버에서 검증한 결과다
+ * (EntitlementContext). 클라이언트 localStorage 로 우회할 수 없다.
+ *
+ * 주의: 이것은 UX 표시용 잠금이다. 진짜 보안 경계는 유료 본문이 레포·번들에 없고
+ * paid_chapters RLS 로 권한자에게만 반환된다는 사실이다.
  */
-export function isChapterLocked(chapterId: string, membershipUnlocked: boolean): boolean {
-  if (membershipUnlocked) return false
-  const gate = config.membership.gateAfterChapter
-  if (typeof gate !== 'number' || !Number.isFinite(gate)) return false
-  const idx = globalChapterIndex(chapterId)
-  return idx > 0 && idx > gate
+export function isChapterLocked(chapterId: string, hasPaidAccess: boolean): boolean {
+  const entry = findChapterEntry(chapterId)
+  if (!entry) return false
+  return entry.chapter.paid === true && !hasPaidAccess
 }
 
 /** 챕터 id로 모드·챕터 엔트리 조회 */

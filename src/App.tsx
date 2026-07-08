@@ -6,11 +6,13 @@ import { ChapterScreen } from './screens/ChapterScreen'
 import { QuizScreen } from './screens/QuizScreen'
 import { AchievementsScreen } from './screens/AchievementsScreen'
 import { GateScreen } from './screens/GateScreen'
+import { PaymentResultScreen } from './screens/PaymentResultScreen'
 import { MuteToggle } from './components/MuteToggle'
 import { EncounterModal } from './components/EncounterModal'
 import { ConsentBanner } from './components/ConsentBanner'
 import { ProgressProvider, useProgress } from './state/ProgressContext'
 import { AchievementProvider } from './state/AchievementContext'
+import { EntitlementProvider, useEntitlement } from './state/EntitlementContext'
 import { config, isChapterLocked, findChapterEntry } from './config'
 import { useHashRoute } from './hooks/useHashRoute'
 import { load, save } from './lib/storage'
@@ -23,11 +25,13 @@ const ENCOUNTER_COOLDOWN_MS = 90_000
 
 export default function App() {
   return (
-    <ProgressProvider>
-      <AchievementProvider>
-        <AppShell />
-      </AchievementProvider>
-    </ProgressProvider>
+    <EntitlementProvider>
+      <ProgressProvider>
+        <AchievementProvider>
+          <AppShell />
+        </AchievementProvider>
+      </ProgressProvider>
+    </EntitlementProvider>
   )
 }
 
@@ -37,7 +41,8 @@ export default function App() {
  * 잠긴 챕터로의 모든 진입(딥링크 포함)은 게이트로 리다이렉트된다.
  */
 function AppShell() {
-  const { membershipUnlocked, rememberChapter } = useProgress()
+  const { rememberChapter } = useProgress()
+  const { hasPaidAccess } = useEntitlement()
   const [route, navigate] = useHashRoute()
   const [booting, setBooting] = useState<boolean>(() => !load<boolean>('visited', false))
   const [encounter, setEncounter] = useState<Encounter | null>(null)
@@ -50,27 +55,27 @@ function AppShell() {
 
   const openChapter = useCallback(
     (id: string) => {
-      if (isChapterLocked(id, membershipUnlocked)) {
+      if (isChapterLocked(id, hasPaidAccess)) {
         sfx.error()
         navigate({ screen: 'gate', pendingChapterId: id })
         return
       }
       navigate({ screen: 'chapter', chapterId: id })
     },
-    [membershipUnlocked, navigate],
+    [hasPaidAccess, navigate],
   )
 
   // 딥링크로 잠긴 챕터에 직접 진입한 경우에도 게이트로
   useEffect(() => {
-    if (route.screen === 'chapter' && isChapterLocked(route.chapterId, membershipUnlocked)) {
+    if (route.screen === 'chapter' && isChapterLocked(route.chapterId, hasPaidAccess)) {
       navigate({ screen: 'gate', pendingChapterId: route.chapterId })
     }
-  }, [route, membershipUnlocked, navigate])
+  }, [route, hasPaidAccess, navigate])
 
   // 챕터 진입 부수효과: 이어보기 기억 + 낮은 확률 인카운터
   useEffect(() => {
     if (route.screen !== 'chapter') return
-    if (isChapterLocked(route.chapterId, membershipUnlocked)) return
+    if (isChapterLocked(route.chapterId, hasPaidAccess)) return
     rememberChapter(route.chapterId)
     const list = config.encounters ?? []
     if (list.length === 0) return
@@ -80,7 +85,7 @@ function AppShell() {
     lastEncounterAt.current = now
     setEncounter(list[Math.floor(Math.random() * list.length)])
     sfx.encounter()
-  }, [route, membershipUnlocked, rememberChapter])
+  }, [route, hasPaidAccess, rememberChapter])
 
   // 라우트별 문서 제목 (챕터별 메타)
   useEffect(() => {
@@ -118,7 +123,7 @@ function AppShell() {
   }
 
   const chapterLocked =
-    route.screen === 'chapter' && isChapterLocked(route.chapterId, membershipUnlocked)
+    route.screen === 'chapter' && isChapterLocked(route.chapterId, hasPaidAccess)
 
   return (
     <div className="crt">
@@ -154,6 +159,9 @@ function AppShell() {
           onUnlocked={onGateUnlocked}
           onBackToMap={toMap}
         />
+      )}
+      {route.screen === 'pay' && (
+        <PaymentResultScreen outcome={route.outcome} query={route.query} onDone={toMap} />
       )}
       {encounter && <EncounterModal encounter={encounter} onClose={() => setEncounter(null)} />}
       <ConsentBanner />

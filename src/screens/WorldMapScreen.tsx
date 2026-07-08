@@ -8,6 +8,7 @@ import {
 } from '../config'
 import { Hud } from '../components/Hud'
 import { useProgress } from '../state/ProgressContext'
+import { useEntitlement } from '../state/EntitlementContext'
 import { sfx } from '../lib/sound'
 
 interface Props {
@@ -27,7 +28,8 @@ export function WorldMapScreen({
   onOpenAchievements,
   onBackToTitle,
 }: Props) {
-  const { isCompleted, quizResult, membershipUnlocked, completed, lastChapterId } = useProgress()
+  const { isCompleted, quizResult, completed, lastChapterId } = useProgress()
+  const { hasPaidAccess } = useEntitlement()
   const pct = totalChapters > 0 ? Math.round((completed.length / totalChapters) * 100) : 0
   const allDone = totalChapters > 0 && completed.length >= totalChapters
   const continueId =
@@ -115,7 +117,7 @@ export function WorldMapScreen({
             {searchResults.length === 0 && <li className="empty-note">일치하는 챕터가 없다.</li>}
             {searchResults.map(({ mode, chapter }) => {
               const readCh = isCompleted(chapter.id)
-              const locked = isChapterLocked(chapter.id, membershipUnlocked)
+              const locked = isChapterLocked(chapter.id, hasPaidAccess)
               return (
                 <li key={chapter.id}>
                   <button
@@ -174,7 +176,7 @@ export function WorldMapScreen({
                     <ul className="chapter-list">
                       {mode.chapters.map((ch) => {
                         const read = isCompleted(ch.id)
-                        const locked = isChapterLocked(ch.id, membershipUnlocked)
+                        const locked = isChapterLocked(ch.id, hasPaidAccess)
                         return (
                           <li key={ch.id}>
                             <button

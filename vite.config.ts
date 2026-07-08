@@ -10,13 +10,15 @@ import react from '@vitejs/plugin-react'
  * - 폰트·이미지 전부 self-host이므로 외부 origin 불허
  */
 function injectCsp(): Plugin {
+  // 유료화(모델 B): Supabase(API) + 토스페이먼츠(SDK·결제창) 호스트를 최소 범위로 허용.
   const csp = [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' https://js.tosspayments.com",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self'",
-    "connect-src 'self'",
+    "connect-src 'self' https://*.supabase.co https://api.tosspayments.com",
+    "frame-src https://*.tosspayments.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

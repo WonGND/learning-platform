@@ -32,10 +32,18 @@ export interface Chapter {
   id: string
   title: string
   summary: string
-  /** 마크다운 문자열 — 챕터 뷰어에서 렌더링 */
-  body: string
+  /**
+   * 마크다운 본문 — 무료 챕터는 여기서 렌더링한다.
+   * 유료 챕터(paid: true)는 본문이 레포에 없고 서버(paid_chapters)에서
+   * 권한 검증 후 온디맨드로 받아오므로 body 를 생략한다.
+   */
+  body?: string
   /** 지식 확인 문제 (선택) */
   check?: CheckQuestion[]
+  /** true면 서버 엔타이틀먼트가 있어야 열람 가능 (유료) */
+  paid?: boolean
+  /** 유료 챕터의 게이트 미리보기용 홍보 문단 (의도적 공개) */
+  teaser?: string
 }
 
 export interface Mode {

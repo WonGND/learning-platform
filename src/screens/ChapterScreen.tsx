@@ -11,6 +11,7 @@ import {
   FONT_SCALE_MAX,
   FONT_SCALE_STEP,
 } from '../hooks/useReadingSettings'
+import { usePaidChapterBody } from '../hooks/usePaidChapterBody'
 import { sfx } from '../lib/sound'
 import type { CSSProperties } from 'react'
 
@@ -35,6 +36,10 @@ function locate(chapterId: string) {
 function readingMinutes(body: string): number {
   return Math.max(1, Math.round(body.length / 600))
 }
+
+const LOADING_PLACEHOLDER = '# 본문 로딩 중…\n\n▓▓▓▒▒▒░░░ 서버에서 유료 본문을 불러오는 중입니다.'
+const DENIED_PLACEHOLDER =
+  '# 접근 권한이 없습니다\n\n이 챕터는 멤버 전용입니다. 월드맵으로 돌아가 잠금을 해제하세요.'
 
 /** 챕터 뷰어 — 마크다운 본문 + 읽기 옵션 + 진행바 + 목차 + 지식 확인 */
 export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) {
@@ -81,19 +86,32 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
     return () => document.body.classList.remove('no-fx')
   }, [reading.readMode])
 
+  // 유료 챕터는 본문이 레포에 없다 → 서버(paid_chapters, RLS)에서 온디맨드로 받는다.
+  const isPaid = current?.chapter.paid === true
+  const paidState = usePaidChapterBody(chapterId, isPaid)
+  const resolvedBody: string = isPaid
+    ? paidState.status === 'ready'
+      ? paidState.body
+      : paidState.status === 'denied'
+        ? DENIED_PLACEHOLDER
+        : paidState.status === 'error'
+          ? `# 오류\n\n본문을 불러오지 못했습니다: ${paidState.message}`
+          : LOADING_PLACEHOLDER
+    : (current?.chapter.body ?? '')
+
   // 목차: 본문의 "## " 제목들 (Markdown 컴포넌트가 같은 순서로 sec-N id를 부여)
   const sections = useMemo(
     () =>
-      (current?.chapter.body.match(/^## .+$/gm) ?? []).map((line) =>
+      (resolvedBody.match(/^## .+$/gm) ?? []).map((line) =>
         line.replace(/^## /, '').replace(/\*\*/g, ''),
       ),
-    [current],
+    [resolvedBody],
   )
 
   if (!current) return null
 
   const read = isCompleted(chapterId)
-  const minutes = readingMinutes(current.chapter.body)
+  const minutes = readingMinutes(resolvedBody)
   // 무료 콘텐츠 완주 지점(게이트 직전 챕터) 또는 전체 마지막 챕터 완료 시 퍼널 노출
   const gate = config.membership.gateAfterChapter
   const isLastFree = Number.isFinite(gate) && globalChapterIndex(chapterId) === gate
@@ -208,7 +226,7 @@ export function ChapterScreen({ chapterId, onOpenChapter, onBackToMap }: Props) 
       )}
 
       <article className="chapter-body" ref={articleRef} style={bodyStyle}>
-        <Markdown source={current.chapter.body} />
+        <Markdown source={resolvedBody} />
       </article>
 
       {current.chapter.check && current.chapter.check.length > 0 && (

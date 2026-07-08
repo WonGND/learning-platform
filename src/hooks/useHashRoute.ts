@@ -13,9 +13,18 @@ export type Route =
   | { screen: 'achievements' }
   | { screen: 'chapter'; chapterId: string }
   | { screen: 'gate'; pendingChapterId: string | null }
+  | { screen: 'pay'; outcome: 'success' | 'fail'; query: string }
 
 export function parseRoute(hash: string): Route {
-  const parts = hash.replace(/^#/, '').split('/').filter(Boolean)
+  const raw = hash.replace(/^#/, '')
+  // 결제 리다이렉트: 토스가 successUrl 에 ?paymentKey=... 쿼리를 붙인다
+  const queryIdx = raw.indexOf('?')
+  const query = queryIdx >= 0 ? raw.slice(queryIdx + 1) : ''
+  const path = queryIdx >= 0 ? raw.slice(0, queryIdx) : raw
+  const parts = path.split('/').filter(Boolean)
+  if (parts[0] === 'pay') {
+    return { screen: 'pay', outcome: parts[1] === 'success' ? 'success' : 'fail', query }
+  }
   switch (parts[0]) {
     case undefined:
       return { screen: 'title' }
@@ -31,6 +40,8 @@ export function parseRoute(hash: string): Route {
         : { screen: 'map' }
     case 'gate':
       return { screen: 'gate', pendingChapterId: parts[1] ? decodeURIComponent(parts[1]) : null }
+    case 'pay':
+      return { screen: 'pay', outcome: 'fail', query: '' }
     default:
       // 알 수 없는 해시는 타이틀로 안전 폴백
       return { screen: 'title' }
@@ -53,6 +64,8 @@ export function routeToHash(route: Route): string {
       return route.pendingChapterId
         ? `#/gate/${encodeURIComponent(route.pendingChapterId)}`
         : '#/gate'
+    case 'pay':
+      return `#/pay/${route.outcome}`
   }
 }
 

@@ -53,3 +53,52 @@ supabase secrets set ALLOWED_ORIGIN=https://내도메인
 - 클라이언트의 entitlement 삽입·is_admin 셀프 승격 차단
 - `redeem_code()` 는 authenticated 실행 거부(service_role 전용), 원자적 처리로
   중복 사용·한도 초과·만료 코드 방어
+
+## 7. 유료 본문 시드 (Phase 2)
+
+유료 챕터 본문은 레포에 없다. gitignore 된 `content-paid/master.local.mjs`(백업 필수)에서 읽어 DB에 올린다:
+
+```bash
+SUPABASE_URL=https://xxx.supabase.co \
+SUPABASE_SERVICE_ROLE_KEY=eyJ... \
+node scripts/seed-paid-chapters.mjs
+```
+
+## 8. Edge Functions 배포 (Phase 3~4)
+
+```bash
+supabase functions deploy redeem-code
+supabase functions deploy create-order
+supabase functions deploy confirm-payment
+supabase secrets set TOSS_SECRET_KEY=test_sk_XXXX   # 개발은 테스트 키
+supabase secrets set ALLOWED_ORIGIN=https://내도메인
+# SUPABASE_ANON_KEY 도 함수에서 사용자 JWT 검증에 쓰므로 secrets 에 설정:
+supabase secrets set SUPABASE_ANON_KEY=<anon key>
+```
+
+## 9. 입장 코드 등록 (서버, 해시 저장)
+
+입장 코드는 평문이 아니라 SHA-256 해시로 `access_codes` 에 저장된다. 예: 코드 `password`:
+
+```bash
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
+node scripts/seed-access-code.mjs password 100000
+```
+
+(두 번째 인자는 총 사용 한도. 사용자별로는 1회만 리딤된다.)
+
+## 10. 결제 흐름 (토스페이먼츠)
+
+1. 클라이언트: 게이트에서 로그인 → "결제하고 전권 해제"
+2. `create-order` 가 서버에서 orderId·금액 생성 (가격은 products 가 결정)
+3. 토스 SDK `requestPayment` → 결제창 → 성공 시 `#/pay/success` 로 리다이렉트
+4. `confirm-payment` 가 **secret key 로 토스 confirm + 금액 대조 + 멱등** 후 엔타이틀먼트 부여
+5. 클라이언트의 "결제됨" 신호는 신뢰하지 않는다 — 서버 confirm 성공만 인정
+
+## 11. 라이브 전환 체크리스트
+
+- [ ] 토스페이먼츠 가맹 심사 통과 후 라이브 키 발급
+- [ ] `VITE_TOSS_CLIENT_KEY` 를 `live_ck_...` 로, `TOSS_SECRET_KEY` 를 `live_sk_...` 로 교체
+- [ ] `products.price_krw` 를 실제 판매가로 설정
+- [ ] `ALLOWED_ORIGIN` 을 운영 도메인으로 고정
+- [ ] 법적 페이지(이용약관·환불정책·개인정보처리방침) 게시 + 사업자 정보 표기
